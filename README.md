@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# Scandiweb React Test
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+By Osuwake Ibiang for the position of a React Junior Developer.
 
 ## Available Scripts
 
