@@ -3,10 +3,13 @@ import storage from 'redux-persist/lib/storage'
 import { combineReducers } from "redux";
 import { persistReducer } from 'redux-persist'
 import navReducer from '../redux/slices/navSlice'
+import dataReducer from '../redux/slices/dataSlice'
 import thunk from 'redux-thunk'
 
 const reducers = combineReducers({
-  navSlice: navReducer
+  navSlice: navReducer,
+  dataSlice: dataReducer,
+
 });
 
 const persistConfig = {
