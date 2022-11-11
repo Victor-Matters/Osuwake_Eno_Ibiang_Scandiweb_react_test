@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 
-export const LandingContainer = styled.div`
+export const PLPContainer = styled.div`
 background: #FFFFFF;
 margin: 55px;  
 padding-top: 80px;
@@ -65,6 +65,10 @@ display: inline-block;
   font-style: normal;
 font-weight: 500;
 font-size: 14px;
+}
+
+.highlighted{
+  background-color: whitesmoke;
 }
 
 .dropdown-content a:hover {background-color: #EEEEEE; cursor: pointer}

@@ -98,6 +98,10 @@ background: #FFFFFF;
     display: block;
 }
 
+.highlighted{
+  background-color: whitesmoke;
+}
+
 .dropdown-content a {
   color: black;
   padding: 12px 16px;

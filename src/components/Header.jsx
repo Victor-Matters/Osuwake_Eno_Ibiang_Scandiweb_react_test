@@ -90,7 +90,7 @@ class Header extends Component {
                             <div className={`dropdown-content ${showCurrencyDropDown ? "visible" : ""}`}>
                                 {currencies.map((item, index) => {
                                     return (
-                                        <a onClick={() => {
+                                        <a className={index === selectedCurrency && 'highlighted'} onClick={() => {
                                             this.props.setCurrency(index); 
                                             this.props.hide_CurrencyDropDown()
                                         }}

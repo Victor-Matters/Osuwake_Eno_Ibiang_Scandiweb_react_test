@@ -26,6 +26,7 @@ display: flex;
 align-items: center;
 color: #1D1F22;
 margin-top: 20px;
+
 }
 
 .item-price{
@@ -35,6 +36,7 @@ img{
   width: 70%;
   height: 70%;
   object-fit: contain;
+  
 }
 
 .item-info{
@@ -48,11 +50,22 @@ line-height: 160%;
 text-align: center;
 color: #8D8F9A;
 
+}
 
  @media (max-width: 768px) {
+  height: 300px;
+  .item-info{
    font-size: 15px;
   }
-}
+  .item-name{
+font-size: 15px;
+  }
+
+  .item-price{
+font-size: 15px;
+  }
+
+  }
 
 }
 `;

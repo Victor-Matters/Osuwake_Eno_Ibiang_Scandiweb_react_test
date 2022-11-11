@@ -1,20 +1,22 @@
 import React from 'react'
+import { Routes, Route, Navigate } from "react-router-dom";
 import { hide_CurrencyDropDown } from './redux/slices/navSlice'
 import { hide_FilterDropDown } from './redux/slices/dataSlice'
 import './App.css';
 import { connect } from 'react-redux';
 import Header from './components/Header';
-import Landing from './pages/Landing';
+import PLP from './pages/PLP';
+import PDP from './pages/PDP';
 
 
 class App extends React.Component {
 
-  
+
   hideDropDown() {
- 
-      if (this.props.showCurrencyDropDown) {
-        this.props.hide_CurrencyDropDown()
-      }
+
+    if (this.props.showCurrencyDropDown) {
+      this.props.hide_CurrencyDropDown()
+    }
 
     if (this.props.showFilterDropDown) {
       this.props.hide_FilterDropDown()
@@ -22,11 +24,18 @@ class App extends React.Component {
   }
 
   render() {
-  
+
     return (
       <div onClick={() => this.hideDropDown()} className='App'>
         <Header />
-      <Landing/>
+        <Routes>
+          <Route path="/:categoryName" element={<PLP />} /> 
+          <Route path="/:categoryName/:product" element={<PDP />} /> 
+          <Route
+            path="/"
+            element={<Navigate to="/:categoryName" replace />}
+          />       
+        </Routes>
       </div>
     );
   }

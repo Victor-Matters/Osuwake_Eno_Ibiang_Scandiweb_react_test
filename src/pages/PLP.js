@@ -1,9 +1,10 @@
 import React from 'react'
 import { gql } from '@apollo/client';
 import { connect } from 'react-redux';
+import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
-import { setFocusedCategory, show_FilterDropDown, hide_FilterDropDown } from '../redux/slices/dataSlice'
-import { CategoryContainer, ItemsContainer, LandingContainer } from '../styles/Landing.js';
+import { show_FilterDropDown, hide_FilterDropDown } from '../redux/slices/dataSlice'
+import { CategoryContainer, ItemsContainer, PLPContainer } from '../styles/PLP.js';
 import { LoadingContainer } from '../styles/Loading.js';
 import Card from '../components/Card.jsx';
 
@@ -32,8 +33,8 @@ query  {
 
 
 class Landing extends React.Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
         this.state = {
             all_categories: [],
             focusedCategoryData: {},
@@ -43,33 +44,40 @@ class Landing extends React.Component {
     }
 
 
-    getCategory = async (categoryName) => {     
+    getCategory = async (categoryName) => {
         await client.query({
             query: GET_CATEGORY(categoryName)
         }).then((result) => {
             let categoryData = result.data.category
-          this.setState({focusedCategoryData: categoryData, loading: false})
+            this.setState({ focusedCategoryData: categoryData, loading: false })
+            window.history.replaceState(null, '', categoryData.name)
+
         }).catch(err => {
             this.setState({ error: err?.message })
         })
     }
 
 
-    getCategories = async () => {
+    getCategories = async (categoryName) => {
         await client.query({
             query: GET_CATEGORIES
         }).then((result) => {
             let all_categories = result.data.categories
-             
-
             this.setState({ all_categories: all_categories })
-            if (this.props.focusedCategory === '') {
-                this.props.set_FocusedCategory(all_categories[0].name)
-                this.getCategory(all_categories[0].name)
-            }
-            else{
+            // Here am Checking if the name of the passed route(category) exist in our list of categories from backend
+            // If it is not found i will present client with our 0 index category. Which for this test is "all" 
 
-                this.getCategory(this.props.focusedCategory)   
+            let categoryExist = false;
+            for (let i = 0; i < all_categories.length; i++) {
+                if (all_categories[i].name === categoryName) {
+                    categoryExist = true;
+                }
+            }
+            if (categoryExist) {
+                this.getCategory(categoryName)
+            }
+            else {
+                this.getCategory(all_categories[0].name)
             }
         }
         ).catch(err => {
@@ -78,7 +86,9 @@ class Landing extends React.Component {
     }
 
     componentDidMount() {
-        this.getCategories()
+        const { categoryName } = this.props.params
+        this.getCategories(categoryName)
+
     }
 
     dropDownClick() {
@@ -94,49 +104,48 @@ class Landing extends React.Component {
     render() {
 
         const selectedCurrency = this.props.selectedCurrency
-        const focusedCategory = this.props.focusedCategory
         const focusedCategoryData = this.state.focusedCategoryData
         const showFilterDropDown = this.props.showFilterDropDown
         const showCurrencyDropDown = this.props.showCurrencyDropDown
+        const error = this.state.error
 
-
-        console.log(showFilterDropDown)
+        // console.log(showFilterDropDown)
 
         if (this.state.loading) {
             return (
                 <LoadingContainer>
-                    <h3>Please Wait...</h3>
+                    <h3 hidden={error !== ''}>Please Wait...</h3>
+                    <h4 hidden={error === ''}>{error}</h4>
                 </LoadingContainer>
             )
         }
         else {
 
             return (
-                <LandingContainer>
+                <PLPContainer>
 
                     <CategoryContainer>
                         <div className='header-container'>
-                            <h2>{focusedCategory}</h2>
+                            <h2>{focusedCategoryData.name}</h2>
                             <div className={`filter-container ${showCurrencyDropDown ? "hidden" : ""}`}>
-                            <span>Filter:</span>
-                            <div className='filter'>
-                                <div onClick={() => this.dropDownClick()} className='filter-btn'>{focusedCategory}</div>
-                                <div>
-                                    <div className={`dropdown-content ${showFilterDropDown ? "visible" : ""}`}>
-                                        {this.state.all_categories.map((item, index) => {
-                                            return (
-                                                <a onClick={() => {
-                                                    this.props.set_FocusedCategory(item.name);
-                                                    this.props.hide_FilterDropDown() 
-                                                    this.getCategory(item.name)                                
-                                                }}
-                                                    key={index}>{item?.name}</a>
-                                            )
-                                        })}
+                                <span>Category:</span>
+                                <div className='filter'>
+                                    <div onClick={() => this.dropDownClick()} className='filter-btn'>{focusedCategoryData.name}</div>
+                                    <div>
+                                        <div className={`dropdown-content ${showFilterDropDown ? "visible" : ""}`}>
+                                            {this.state.all_categories.map((item, index) => {
+                                                return (
+                                                    <a className={item.name === focusedCategoryData.name &&'highlighted'}  onClick={() => {
+                                                        this.props.hide_FilterDropDown()
+                                                        this.getCategory(item.name)
+                                                    }}
+                                                        key={index}>{item?.name}</a>
+                                                )
+                                            })}
 
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             </div>
                         </div>
 
@@ -159,7 +168,7 @@ class Landing extends React.Component {
 
 
 
-                </LandingContainer>
+                </PLPContainer>
             );
         }
     }
@@ -168,7 +177,6 @@ class Landing extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        set_FocusedCategory: (item) => dispatch(setFocusedCategory(item)),
         show_FilterDropDown: () => dispatch(show_FilterDropDown()),
         hide_FilterDropDown: () => dispatch(hide_FilterDropDown())
     }
@@ -182,4 +190,16 @@ const mapStateToProps = state => ({
 
 
 })
-export default connect(mapStateToProps, mapDispatchToProps)(Landing)
+
+export const withRouter = (Component) => (props) => {
+    const params = useParams();
+    const navigate = useNavigate();
+
+    return <Component {...props} params={params} navigate={navigate} />;
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Landing))
+
+
+ //export default Landing
+
