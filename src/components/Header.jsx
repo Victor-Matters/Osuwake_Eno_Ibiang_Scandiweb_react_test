@@ -5,10 +5,10 @@ import { nav_items } from '../constants'
 import { gql } from '@apollo/client';
 import { client } from '../index.js'
 import { setFocusedTab, setSelectedCurrency, show_CurrencyDropDown, hide_CurrencyDropDown } from '../redux/slices/navSlice'
-import { ReactComponent as BrandIcon } from "../assets/icon1.svg";
-import { ReactComponent as EmptyCart } from "../assets/emptyCart.svg";
-import { ReactComponent as ArrowUp } from "../assets/arrow_up.svg";
-import { ReactComponent as ArrowDown } from "../assets/arrow_down.svg";
+import { ReactComponent as BrandIcon } from "../assets/svg/icon1.svg";
+import { ReactComponent as EmptyCart } from "../assets/svg/emptyCart.svg";
+import { ReactComponent as ArrowUp } from "../assets/svg/arrow_up.svg";
+import { ReactComponent as ArrowDown } from "../assets/svg/arrow_down.svg";
 
 
 const GET_CURRENCIES = gql`
@@ -45,14 +45,14 @@ class Header extends Component {
         this.getCurrencies()
     }
 
-    dropDownClick(){
-        if (this.props.showCurrencyDropDown){
+    dropDownClick() {
+        if (this.props.showCurrencyDropDown) {
             this.props.hide_CurrencyDropDown()
         }
-        else{
+        else {
             this.props.show_CurrencyDropDown()
         }
-    
+
     }
 
     render() {
@@ -62,11 +62,11 @@ class Header extends Component {
         const showCurrencyDropDown = this.props.showCurrencyDropDown
         const currencies = this.state.currencies
 
-        
+
 
         return (
             <HeaderContainer >
-                <div  className='left'>
+                <div className='left'>
                     <ul>
                         {nav_items.map((item, index) => {
                             return (
@@ -83,15 +83,15 @@ class Header extends Component {
                 <div className='right'>
                     <div className='items'>
                         <div className='currency-dropdown'>
-                            <div onClick={()=>this.dropDownClick()} className='currency'>
+                            <div onClick={() => this.dropDownClick()} className='currency'>
                                 <span>{currencies[selectedCurrency]?.symbol}</span>
                                 {showCurrencyDropDown ? <ArrowUp /> : <ArrowDown />}
                             </div>
                             <div className={`dropdown-content ${showCurrencyDropDown ? "visible" : ""}`}>
                                 {currencies.map((item, index) => {
                                     return (
-                                        <a className={index === selectedCurrency && 'highlighted'} onClick={() => {
-                                            this.props.setCurrency(index); 
+                                        <a className={index === selectedCurrency ? 'highlighted' : undefined} onClick={() => {
+                                            this.props.setCurrency(index);
                                             this.props.hide_CurrencyDropDown()
                                         }}
                                             key={index}>{item?.symbol} {item?.label}</a>

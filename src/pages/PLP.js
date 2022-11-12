@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 import { connect } from 'react-redux';
 import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
-import { show_FilterDropDown, hide_FilterDropDown } from '../redux/slices/dataSlice'
+import { show_FilterDropDown, hide_FilterDropDown, setFocusedCategoryData, setFocusedProductId } from '../redux/slices/dataSlice'
 import { CategoryContainer, ItemsContainer, PLPContainer } from '../styles/PLP.js';
 import { LoadingContainer } from '../styles/Loading.js';
 import Card from '../components/Card.jsx';
@@ -32,12 +32,11 @@ query  {
 
 
 
-class Landing extends React.Component {
+class PLP extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
             all_categories: [],
-            focusedCategoryData: {},
             loading: true,
             error: ''
         }
@@ -49,7 +48,8 @@ class Landing extends React.Component {
             query: GET_CATEGORY(categoryName)
         }).then((result) => {
             let categoryData = result.data.category
-            this.setState({ focusedCategoryData: categoryData, loading: false })
+            this.props.setFocusedCategoryData(categoryData)
+            this.setState({loading: false })
             window.history.replaceState(null, '', categoryData.name)
 
         }).catch(err => {
@@ -101,15 +101,36 @@ class Landing extends React.Component {
 
     }
 
+    onProductImageClick(productId){
+    
+        this.markOrUnMarkProductAsSelected(productId, this.props.focusedProductId)
+
+    }
+
+    onProductPriceClick(productId){
+   
+        this.props.setFocusedProductId(productId)
+        this.props.navigate(`/${this.props.focusedCategoryData.name}/${productId}`)
+    }
+
+    markOrUnMarkProductAsSelected(incommingFocusedProductId, focusedProductId){
+        if (focusedProductId!==incommingFocusedProductId){
+            this.props.setFocusedProductId(incommingFocusedProductId)
+        } 
+        else{
+            this.props.setFocusedProductId('')
+        } 
+    }
+
     render() {
 
         const selectedCurrency = this.props.selectedCurrency
-        const focusedCategoryData = this.state.focusedCategoryData
+        const focusedCategoryData = this.props.focusedCategoryData
         const showFilterDropDown = this.props.showFilterDropDown
         const showCurrencyDropDown = this.props.showCurrencyDropDown
+        const focusedProductId = this.props.focusedProductId
         const error = this.state.error
 
-        // console.log(showFilterDropDown)
 
         if (this.state.loading) {
             return (
@@ -135,8 +156,8 @@ class Landing extends React.Component {
                                         <div className={`dropdown-content ${showFilterDropDown ? "visible" : ""}`}>
                                             {this.state.all_categories.map((item, index) => {
                                                 return (
-                                                    <a className={item.name === focusedCategoryData.name &&'highlighted'}  onClick={() => {
-                                                        this.props.hide_FilterDropDown()
+                                                    <a className={item.name === focusedCategoryData.name ?'highlighted':undefined}  onClick={() => {
+                                                        this.props.hide_FilterDropDown();
                                                         this.getCategory(item.name)
                                                     }}
                                                         key={index}>{item?.name}</a>
@@ -155,11 +176,16 @@ class Landing extends React.Component {
                                     <Card
                                         key={index}
                                         image={product.gallery[0]}
+                                        productId={product.id}
                                         imageName={product.name}
                                         name={product.name}
                                         amount={product.name}
                                         price={product.prices[selectedCurrency].currency.symbol + " " + product.prices[selectedCurrency].amount}
                                         inStock={product.inStock}
+                                        focusedProductId={focusedProductId}
+                                        onProductImageClick={() => this.onProductImageClick(product.id)}
+                                        onProductPriceClick={() => this.onProductPriceClick(product.id)}
+                                        onCartClick={()=>alert('')}
                                     />
                                 )
                             })}
@@ -178,7 +204,11 @@ class Landing extends React.Component {
 const mapDispatchToProps = (dispatch) => {
     return {
         show_FilterDropDown: () => dispatch(show_FilterDropDown()),
-        hide_FilterDropDown: () => dispatch(hide_FilterDropDown())
+        hide_FilterDropDown: () => dispatch(hide_FilterDropDown()),
+        setFocusedCategoryData: (item) => dispatch(setFocusedCategoryData(item)),
+        setFocusedProductId: (item) => dispatch(setFocusedProductId(item))
+
+
     }
 };
 
@@ -187,8 +217,8 @@ const mapStateToProps = state => ({
     focusedCategory: state.dataSlice.focusedCategory,
     showFilterDropDown: state.dataSlice.showFilterDropDown,
     showCurrencyDropDown: state.navSlice.showCurrencyDropDown,
-
-
+    focusedCategoryData: state.dataSlice.focusedCategoryData,
+    focusedProductId: state.dataSlice.focusedProductId
 })
 
 export const withRouter = (Component) => (props) => {
@@ -198,7 +228,7 @@ export const withRouter = (Component) => (props) => {
     return <Component {...props} params={params} navigate={navigate} />;
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Landing))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PLP))
 
 
  //export default Landing

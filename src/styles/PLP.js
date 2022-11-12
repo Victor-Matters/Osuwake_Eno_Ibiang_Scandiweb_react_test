@@ -108,4 +108,14 @@ grid-template-columns: repeat(3, 1fr);
 grid-gap: 45px;
 margin-bottom: 70px;
 
+
+ @media (max-width: 768px) {
+
+grid-template-columns: repeat(2, 1fr);
+
+ }
+
+  @media (max-width: 580px) {
+grid-template-columns: repeat(1, 1fr);
+  }
 `;

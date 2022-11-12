@@ -5,41 +5,34 @@ export const CardContainer = styled.div`
   box-sizing: border-box;
 height: 350px;
 margin-bottom: 30px;
-display: flex;
-flex-direction: column;
-padding: 20px;
  position: relative;
-
+ background: #FFFFFF;
+box-shadow:  ${props => props.focusedProductId === props.productId ? "0px 4px 35px rgba(168, 172, 176, 0.19)" : "none"};
 .low-opacity{
 opacity: 0.5;
 }
 
 :hover{
-background-color:  ${props => props.inStock ? "whitesmoke" : ""};
 cursor:  ${props => props.inStock ? "pointer" : "default"};
-}
-.item-name{
-font-weight: 300;
-font-size: 18px;
-line-height: 160%;
-display: flex;
-align-items: center;
-color: #1D1F22;
-margin-top: 20px;
+box-shadow:  ${props => props.inStock ? "0px 4px 35px rgba(168, 172, 176, 0.19)" : "none"};
 
 }
 
-.item-price{
-font-weight: 500;
-}
-img{
-  width: 70%;
-  height: 70%;
-  object-fit: contain;
-  
-}
 
-.item-info{
+.product-image{
+  height: 270px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+    img{
+      max-width: 100%;
+      max-height: 90%;
+      object-fit: cover;
+
+       }
+
+       .item-info{
  position: absolute;
   top: 50%;
   left: 50%;
@@ -52,20 +45,64 @@ color: #8D8F9A;
 
 }
 
+}
+
+.product-price{
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 19px;
+
+  :hover{
+background-color:  ${props => props.inStock ? "#FBFCFC" : "none"};
+
+}
+
+  
+}
+.item-name{
+font-weight: 300;
+font-size: 18px;
+display: flex;
+align-items: center;
+color: #1D1F22;
+margin-bottom: 5px;
+}
+
+.item-price{
+font-weight: 500;
+}
+
+.cart-icon{
+  height: 50px;
+  width: 50px;
+   position: absolute;
+  bottom: 10%;
+  right: 2%;
+  transform: translate(-50%, -50%);
+z-index:10;
+}
+
+}
+
  @media (max-width: 768px) {
-  height: 300px;
-  .item-info{
-   font-size: 15px;
-  }
-  .item-name{
+  .product-image{
+ 
+       .item-info{
 font-size: 15px;
-  }
+}
 
-  .item-price{
-font-size: 15px;
-  }
+}
 
-  }
+
+
+.cart-icon{
+  height: 40px;
+  width: 40px;
+}
+
+
 
 }
 `;
