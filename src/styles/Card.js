@@ -28,8 +28,7 @@ box-shadow:  ${props => props.inStock ? "0px 4px 35px rgba(168, 172, 176, 0.19)"
     img{
       max-width: 100%;
       max-height: 90%;
-      object-fit: cover;
-
+      object-fit: scale-down;
        }
 
        .item-info{

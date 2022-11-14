@@ -3,9 +3,19 @@ import styled from "styled-components";
 
 export const PLPContainer = styled.div`
 background: #FFFFFF;
-margin: 55px;  
-padding-top: 80px;
+display: flex;
+height: 90vh;
+flex-direction: column;
 
+.dim-overlay{
+  height: 100vh;
+  background: gray;
+  width: 100%;
+  position: fixed;
+  opacity: 60% ;
+  display:   ${props => props.dimContent ? 'block' : 'none'};
+  z-index: 1; 
+}
 }
 `;
 
@@ -13,11 +23,14 @@ export const CategoryContainer = styled.div`
 
 min-height: 50vh;
 
+margin: 50px;
+
 .header-container{
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  margin-top: 105px;  
 
   h2{
 font-weight: 400;

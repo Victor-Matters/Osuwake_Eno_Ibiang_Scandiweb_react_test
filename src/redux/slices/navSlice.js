@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {nav_items} from '../../constants'
 
 
 const initialState = {
-  focusedTab: nav_items[0],
+  focusedTab: 0,
   selectedCurrency: 0,
-  showCurrencyDropDown: false
+  showCurrencyDropDown: false,
+  showCart: false
 }
 
 const navSlice = createSlice({
@@ -25,9 +25,19 @@ const navSlice = createSlice({
 
     hide_CurrencyDropDown: (state) => {
       state.showCurrencyDropDown = false
+    },
+
+    setShowCart: (state, action) => {
+      state.showCart = action.payload
     }
   }
 })
 
-export const { setFocusedTab, setSelectedCurrency, show_CurrencyDropDown, hide_CurrencyDropDown } = navSlice.actions
+export const { 
+  setFocusedTab, 
+  setSelectedCurrency, 
+  show_CurrencyDropDown, 
+  hide_CurrencyDropDown,
+  setShowCart
+} = navSlice.actions
 export default navSlice.reducer

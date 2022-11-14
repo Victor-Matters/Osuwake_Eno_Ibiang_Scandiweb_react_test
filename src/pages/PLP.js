@@ -3,10 +3,12 @@ import { gql } from '@apollo/client';
 import { connect } from 'react-redux';
 import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
-import { show_FilterDropDown, hide_FilterDropDown, setFocusedCategoryData, setFocusedProductId } from '../redux/slices/dataSlice'
+import { setFocusedCategoryData, setFocusedProductId, setLoading, setError } from '../redux/slices/dataSlice'
+import { setFocusedTab } from '../redux/slices/navSlice'
+
 import { CategoryContainer, ItemsContainer, PLPContainer } from '../styles/PLP.js';
-import { LoadingContainer } from '../styles/Loading.js';
 import Card from '../components/Card.jsx';
+import Loading from '../components/Loading.jsx';
 
 
 const GET_CATEGORIES = gql`
@@ -36,24 +38,25 @@ class PLP extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            all_categories: [],
-            loading: true,
-            error: ''
+            all_categories: []
         }
     }
 
 
-    getCategory = async (categoryName) => {
+    getCategoryByName = async (categoryName) => {
+        this.props.setLoading(true)
+        this.props.setError('')
         await client.query({
             query: GET_CATEGORY(categoryName)
         }).then((result) => {
             let categoryData = result.data.category
             this.props.setFocusedCategoryData(categoryData)
-            this.setState({loading: false })
+            this.props.setFocusedTab(categoryName)
+            this.props.setLoading(false)
             window.history.replaceState(null, '', categoryData.name)
 
         }).catch(err => {
-            this.setState({ error: err?.message })
+            this.props.setError(err?.message)
         })
     }
 
@@ -64,7 +67,8 @@ class PLP extends React.Component {
         }).then((result) => {
             let all_categories = result.data.categories
             this.setState({ all_categories: all_categories })
-            // Here am Checking if the name of the passed route(category) exist in our list of categories from backend
+
+            // Here am Checking if the name of the passed route(categoryName) exist in our list of categories from backend
             // If it is not found i will present client with our 0 index category. Which for this test is "all" 
 
             let categoryExist = false;
@@ -74,14 +78,15 @@ class PLP extends React.Component {
                 }
             }
             if (categoryExist) {
-                this.getCategory(categoryName)
+                this.getCategoryByName(categoryName)
             }
             else {
-                this.getCategory(all_categories[0].name)
+                this.getCategoryByName(all_categories[0].name)
+
             }
         }
         ).catch(err => {
-            this.setState({ error: err?.message })
+            this.props.setError(err?.message)
         })
     }
 
@@ -91,85 +96,55 @@ class PLP extends React.Component {
 
     }
 
-    dropDownClick() {
-        if (this.props.showFilterDropDown) {
-            this.props.hide_FilterDropDown()
-        }
-        else {
-            this.props.show_FilterDropDown()
-        }
 
-    }
 
-    onProductImageClick(productId){
-    
+    onProductImageClick(productId) {
+
         this.markOrUnMarkProductAsSelected(productId, this.props.focusedProductId)
 
     }
 
-    onProductPriceClick(productId){
-   
+    onProductPriceClick(productId) {
+
         this.props.setFocusedProductId(productId)
         this.props.navigate(`/${this.props.focusedCategoryData.name}/${productId}`)
     }
 
-    markOrUnMarkProductAsSelected(incommingFocusedProductId, focusedProductId){
-        if (focusedProductId!==incommingFocusedProductId){
+    markOrUnMarkProductAsSelected(incommingFocusedProductId, focusedProductId) {
+        if (focusedProductId !== incommingFocusedProductId) {
             this.props.setFocusedProductId(incommingFocusedProductId)
-        } 
-        else{
+        }
+        else {
             this.props.setFocusedProductId('')
-        } 
+        }
     }
 
     render() {
 
         const selectedCurrency = this.props.selectedCurrency
         const focusedCategoryData = this.props.focusedCategoryData
-        const showFilterDropDown = this.props.showFilterDropDown
-        const showCurrencyDropDown = this.props.showCurrencyDropDown
+        const loading = this.props.loading
+        const error = this.props.error
+        const showCart = this.props.showCart
         const focusedProductId = this.props.focusedProductId
-        const error = this.state.error
 
-
-        if (this.state.loading) {
+        if (loading || error!=='') {
             return (
-                <LoadingContainer>
-                    <h3 hidden={error !== ''}>Please Wait...</h3>
-                    <h4 hidden={error === ''}>{error}</h4>
-                </LoadingContainer>
+                <Loading
+                    loadingMessage={'Please Wait..'}
+                    errorMessage={error}
+                />
             )
         }
         else {
 
             return (
-                <PLPContainer>
-
+                <PLPContainer dimContent={showCart}>
+                    <div className='dim-overlay' ></div>
                     <CategoryContainer>
                         <div className='header-container'>
                             <h2>{focusedCategoryData.name}</h2>
-                            <div className={`filter-container ${showCurrencyDropDown ? "hidden" : ""}`}>
-                                <span>Category:</span>
-                                <div className='filter'>
-                                    <div onClick={() => this.dropDownClick()} className='filter-btn'>{focusedCategoryData.name}</div>
-                                    <div>
-                                        <div className={`dropdown-content ${showFilterDropDown ? "visible" : ""}`}>
-                                            {this.state.all_categories.map((item, index) => {
-                                                return (
-                                                    <a className={item.name === focusedCategoryData.name ?'highlighted':undefined}  onClick={() => {
-                                                        this.props.hide_FilterDropDown();
-                                                        this.getCategory(item.name)
-                                                    }}
-                                                        key={index}>{item?.name}</a>
-                                                )
-                                            })}
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-
                         <ItemsContainer>
                             {focusedCategoryData.products.map((product, index) => {
                                 return (
@@ -185,15 +160,13 @@ class PLP extends React.Component {
                                         focusedProductId={focusedProductId}
                                         onProductImageClick={() => this.onProductImageClick(product.id)}
                                         onProductPriceClick={() => this.onProductPriceClick(product.id)}
-                                        onCartClick={()=>alert('')}
+                                        dimContent={showCart}
+                                        onCartClick={() => alert('')}
                                     />
                                 )
                             })}
                         </ItemsContainer>
                     </CategoryContainer>
-
-
-
                 </PLPContainer>
             );
         }
@@ -203,11 +176,12 @@ class PLP extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        show_FilterDropDown: () => dispatch(show_FilterDropDown()),
-        hide_FilterDropDown: () => dispatch(hide_FilterDropDown()),
-        setFocusedCategoryData: (item) => dispatch(setFocusedCategoryData(item)),
-        setFocusedProductId: (item) => dispatch(setFocusedProductId(item))
 
+        setFocusedCategoryData: (item) => dispatch(setFocusedCategoryData(item)),
+        setFocusedProductId: (item) => dispatch(setFocusedProductId(item)),
+        setLoading: (item) => dispatch(setLoading(item)),
+        setError: (item) => dispatch(setError(item)),
+        setFocusedTab: (item) => dispatch(setFocusedTab(item)),
 
     }
 };
@@ -215,10 +189,12 @@ const mapDispatchToProps = (dispatch) => {
 const mapStateToProps = state => ({
     selectedCurrency: state.navSlice.selectedCurrency,
     focusedCategory: state.dataSlice.focusedCategory,
-    showFilterDropDown: state.dataSlice.showFilterDropDown,
     showCurrencyDropDown: state.navSlice.showCurrencyDropDown,
     focusedCategoryData: state.dataSlice.focusedCategoryData,
-    focusedProductId: state.dataSlice.focusedProductId
+    focusedProductId: state.dataSlice.focusedProductId,
+    loading: state.dataSlice.loading,
+    error: state.dataSlice.error,
+    showCart: state.navSlice.showCart
 })
 
 export const withRouter = (Component) => (props) => {
@@ -229,7 +205,4 @@ export const withRouter = (Component) => (props) => {
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PLP))
-
-
- //export default Landing
 

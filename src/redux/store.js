@@ -4,11 +4,14 @@ import { combineReducers } from "redux";
 import { persistReducer } from 'redux-persist'
 import navReducer from '../redux/slices/navSlice'
 import dataReducer from '../redux/slices/dataSlice'
+import cartReducer from '../redux/slices/cartSlice'
+
 import thunk from 'redux-thunk'
 
 const reducers = combineReducers({
   navSlice: navReducer,
   dataSlice: dataReducer,
+  cartSlice: cartReducer
 
 });
 

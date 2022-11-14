@@ -4,9 +4,7 @@ import add_to_cart from "../assets/png/add_to_cart.png";
 
 
 export default class Card extends Component {
-  constructor(props) {
-    super(props);
-  }
+
 
   render() {
     return (
@@ -24,7 +22,7 @@ export default class Card extends Component {
             <div className='item-name'>{this.props.name}</div>
             <div className='item-price'>{this.props.price}</div>
           </div>
-          {this.props.focusedProductId === this.props.productId && <img onClick={this.props.onCartClick} className='cart-icon' src={add_to_cart} alt='add-to-cart' />}
+          {(this.props.focusedProductId === this.props.productId && !this.props.dimContent) && <img onClick={this.props.onCartClick} className='cart-icon' src={add_to_cart} alt='add-to-cart' />}
 
         </div>
       </CardContainer>

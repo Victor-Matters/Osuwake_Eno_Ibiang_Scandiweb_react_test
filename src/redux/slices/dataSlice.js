@@ -5,7 +5,8 @@ const initialState = {
   showFilterDropDown: false,
   focusedCategoryData: {},
   focusedProductId: '',
-
+  loading: true,
+  error: ''
 }
 
 const dataSlice = createSlice({
@@ -28,9 +29,25 @@ const dataSlice = createSlice({
       state.focusedProductId = action.payload
     },
 
+    setLoading: (state, action) => {
+      state.loading = action.payload
+    },
+
+    setError: (state, action) => {
+      state.error = action.payload
+    },
+
+
 
   }
 })
 
-export const { show_FilterDropDown, hide_FilterDropDown, setFocusedCategoryData, setFocusedProductId} = dataSlice.actions
+export const {
+  show_FilterDropDown,
+  hide_FilterDropDown,
+  setFocusedCategoryData,
+  setFocusedProductId,
+  setLoading,
+  setError
+} = dataSlice.actions
 export default dataSlice.reducer

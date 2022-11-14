@@ -8,7 +8,6 @@ import Header from './components/Header';
 import PLP from './pages/PLP';
 import PDP from './pages/PDP';
 
-
 class App extends React.Component {
 
 
@@ -27,10 +26,11 @@ class App extends React.Component {
 
     return (
       <div onClick={() => this.hideDropDown()} className='App'>
+       
         <Header />
         <Routes>
           <Route path="/:categoryName" element={<PLP />} /> 
-          <Route path="/:categoryName/:product" element={<PDP />} /> 
+          <Route path="/:categoryName/:product_id" element={<PDP />} /> 
           <Route
             path="/"
             element={<Navigate to="/:categoryName" replace />}

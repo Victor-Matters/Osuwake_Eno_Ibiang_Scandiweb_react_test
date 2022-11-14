@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { HeaderContainer } from '../styles/Header'
-import { nav_items } from '../constants'
 import { gql } from '@apollo/client';
+import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
-import { setFocusedTab, setSelectedCurrency, show_CurrencyDropDown, hide_CurrencyDropDown } from '../redux/slices/navSlice'
+import { setFocusedCategoryData, setLoading, setError } from '../redux/slices/dataSlice'
+import { setFocusedTab, setSelectedCurrency, show_CurrencyDropDown, hide_CurrencyDropDown, setShowCart } from '../redux/slices/navSlice'
 import { ReactComponent as BrandIcon } from "../assets/svg/icon1.svg";
 import { ReactComponent as EmptyCart } from "../assets/svg/emptyCart.svg";
 import { ReactComponent as ArrowUp } from "../assets/svg/arrow_up.svg";
@@ -20,13 +21,32 @@ const GET_CURRENCIES = gql`
   }
 `;
 
+const GET_CATEGORIES = gql`
+  query {
+     categories{    
+      name
+      }
+  }
+`;
+
+const GET_CATEGORY = (categoryName) => gql`
+query  {
+  category(input: {title: "${categoryName}"}) {
+    name,
+    products{id, name, inStock, gallery, prices{currency{label, symbol} amount}}
+  }
+}
+`;
+
 
 class Header extends Component {
 
     constructor() {
         super()
         this.state = {
-            currencies: []
+            currencies: [],
+            categories: [],
+         
         }
     }
 
@@ -40,9 +60,35 @@ class Header extends Component {
         })
     }
 
+    getCategories = async () => {
+        await client.query({
+            query: GET_CATEGORIES
+        }).then((result) => {
+            let _categories = result.data.categories
+           
+            this.setState({ categories: _categories })
+           
+        })
+    }
+
 
     componentDidMount() {
         this.getCurrencies()
+        this.getCategories()
+    }
+
+    getCategoryByName = async (categoryName) => {
+        this.props.setLoading(true)
+        await client.query({
+            query: GET_CATEGORY(categoryName)
+        }).then((result) => {
+            let categoryData = result.data.category
+            this.props.setFocusedCategoryData(categoryData)
+            this.props.setLoading(false)
+           
+        }).catch(err => {
+            this.props.setError(err?.message)
+        })
     }
 
     dropDownClick() {
@@ -57,22 +103,32 @@ class Header extends Component {
 
     render() {
 
-        const focusedTab = this.props.focusedTab
+      
         const selectedCurrency = this.props.selectedCurrency
         const showCurrencyDropDown = this.props.showCurrencyDropDown
-        const currencies = this.state.currencies
+        const focusedTab = this.props.focusedTab
+        const showCart = this.props.showCart
+        const cartItems = this.props.cartItems
 
-
-
+        const {categories, currencies} = this.state
+ 
+        let totalQuantityOfProducts = 0;
+        for(let i=0; i <cartItems.length;i++){
+            totalQuantityOfProducts += cartItems[i].quantity
+        }
+     
+ 
         return (
             <HeaderContainer >
                 <div className='left'>
                     <ul>
-                        {nav_items.map((item, index) => {
+                        {categories.map((item, index) => {
                             return (
                                 <li onClick={() => {
-                                    this.props.navClick(item)
-                                }} className={`nav-item ${item === focusedTab ? "active" : ""}`} key={index}>{item}</li>
+                                    this.props.navigate(item.name);
+                                    this.props.setFocusedTab(item.name);
+                                    this.getCategoryByName(item.name)
+                                }} className={`nav-item ${item.name === focusedTab ? "active" : ""}`} key={index}>{item.name}</li>
                             )
                         })}
                     </ul>
@@ -90,18 +146,23 @@ class Header extends Component {
                             <div className={`dropdown-content ${showCurrencyDropDown ? "visible" : ""}`}>
                                 {currencies.map((item, index) => {
                                     return (
-                                        <a className={index === selectedCurrency ? 'highlighted' : undefined} onClick={() => {
+                                        <div className={index === selectedCurrency ? 'highlighted' : undefined} onClick={() => {
                                             this.props.setCurrency(index);
                                             this.props.hide_CurrencyDropDown()
                                         }}
-                                            key={index}>{item?.symbol} {item?.label}</a>
+                                            key={index}>{item?.symbol} {item?.label}</div>
                                     )
                                 })}
 
                             </div>
                         </div>
                         <div className='cart'>
-                            <EmptyCart />
+                            <EmptyCart onClick={() => this.props.setShowCart(!showCart)} />
+                            {this.props.cartItems.length > 0 && <div onClick={() => this.props.setShowCart(!showCart)} className='total-tag'>{totalQuantityOfProducts}</div>}
+                            <div className={`dropdown-content ${showCart ? "visible" : ""}`}>
+                               
+
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -112,10 +173,14 @@ class Header extends Component {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        navClick: (item) => dispatch(setFocusedTab(item)),
         setCurrency: (item) => dispatch(setSelectedCurrency(item)),
+        setFocusedTab: (item) => dispatch(setFocusedTab(item)),
         show_CurrencyDropDown: () => dispatch(show_CurrencyDropDown()),
-        hide_CurrencyDropDown: () => dispatch(hide_CurrencyDropDown())
+        hide_CurrencyDropDown: () => dispatch(hide_CurrencyDropDown()),
+        setFocusedCategoryData: (item) => dispatch(setFocusedCategoryData(item)),
+        setLoading: (item) => dispatch(setLoading(item)),
+        setError: (item) => dispatch(setError(item)),
+        setShowCart: (item) => dispatch(setShowCart(item))
     }
 };
 
@@ -123,5 +188,19 @@ const mapStateToProps = state => ({
     focusedTab: state.navSlice.focusedTab,
     selectedCurrency: state.navSlice.selectedCurrency,
     showCurrencyDropDown: state.navSlice.showCurrencyDropDown,
+    focusedCategoryData: state.dataSlice.focusedCategoryData,
+    loading: state.dataSlice.loading,
+    error: state.dataSlice.error,
+    cartItems: state.cartSlice.cartItems,
+    showCart: state.navSlice.showCart,
+
+
 })
-export default connect(mapStateToProps, mapDispatchToProps)(Header)
+
+export const withRouter = (Component) => (props) => {
+    const params = useParams();
+    const navigate = useNavigate();
+    return <Component {...props} params={params} navigate={navigate} />;
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Header))
