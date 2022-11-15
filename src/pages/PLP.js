@@ -24,7 +24,13 @@ const GET_CATEGORY = (categoryName) => gql`
 query  {
   category(input: {title: "${categoryName}"}) {
     name,
-    products{id, name, inStock, gallery, prices{currency{label, symbol} amount}}
+    products{
+        id, 
+        name, 
+        inStock, 
+        gallery, 
+        prices{currency{label, symbol} amount},
+    }
   }
 }
 `;

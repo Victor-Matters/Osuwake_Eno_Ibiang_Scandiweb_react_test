@@ -167,5 +167,49 @@ margin-bottom: 10px;
 
 }
 
+ @media (max-width: 768px) {
+ 
+  .column3{ 
+    .content{
+        width: 90%;  
+    }
+
+    .product-brand{
+        font-size: 17px;
+ }
+
+.product-name{
+        font-size: 17px;
+        margin-top: 0;
+
+    }
+
+.product-attribute-header{
+        font-size: 15px;
+    }
+
+    .price{
+        font-size: 19px;
+    }
+
+
+    
+    .product-in-cart-bottom{
+       
+        button{
+            padding: 10px 15px;
+            font-size: 13px;
+        }
+
+        span{
+            font-size: 14.5px;
+        }
+}
+
+ .product-description{
+        font-size: 15px;
+ }
+ }
+
 }
 `;

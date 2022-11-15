@@ -1,18 +1,18 @@
 import styled from "styled-components";
 
 
-export const ButtonType1Container = styled.div`
+export const ButtonType2Container = styled.div`
 
 button{
-    border: none;
+    background: #FFFFFF;
+    border: 1px solid #1D1F22;
     width: 100%;
     font-size:  ${props => props.fontSize};
-    padding: 13px 0;
+    padding: 12px 0;
     text-transform: uppercase;
     font-weight: 600;
     font-family: Raleway;
-    background: #5ECE7B;
-    color: #FFFFFF;
+    color: #1D1F22;
     cursor: pointer;
 }
 

@@ -10,10 +10,16 @@ justify-content: center;
 align-items: center;
 border: 1px solid #1D1F22;
 margin-right: 10px;
+padding: 0 5px;
 color: ${props => props.selected ?"#FFFFFF" : "#1D1F22"};
 cursor: pointer;
 :hover{
     font-weight: 500;
 }
+
+ @media (max-width: 768px) {
+height: 20px;
+font-size: 11px;
+ }
 }
 `;

@@ -126,20 +126,174 @@ font-size: 17px;
         position: relative;
         display: inline-block;
 
-.dropdown-content {
+.dropdown-content-cart {
   display: none;
   position: absolute;
   background-color: #FFFFFF;
   width: 295px;
   right: -20px;
   top: 45px;
+  padding: 10px;
   height: 80vh;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
+
+   .empty-cart{
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   height: 60vh;
+
+   p{
+    color: gray;
+    margin: 10px;
+   }
+
+   .button-container{
+    height: 10vh;
+    width: 100%;
+   }
+}
+
+  .header{
+    color: #1D1F22;
+    font-weight: 700;
+    margin-top: 10px;
+height: 8%;
+
+    span{
+        font-weight: normal;  
+    }
+  }
+
+.items-container{
+
+height: 72%;
+overflow-x: auto;
+ ::-webkit-scrollbar {
+  display: none;
+}
+  .cart-item{
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 45px;
+   
+    width: 100%;
+    .left{
+  
+    width: 60%;
+        display: flex;
+        flex-direction: row;
+    .attributes{
+    width: 85%;
+
+.attributes-container{
+    .header{
+        font-size: 15px;
+        font-weight: 400;
+        margin-top: 15px;
+    }
+     .attribute-row1{
+margin-top: 7px;
+display: flex;
+flex-direction: row;
+
+    }
+
+    .attribute-row2{
+margin-top: 7px;
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+grid-gap: 2px; 
+margin-right: 20px;
+    }
+}
+
+
+
+    .name{
+        font-size: 16px;
+    }
+    .amount{
+        margin-top: 5px;
+        font-weight: 500;
+        font-size: 16px;
+    }
+    }
+    
+    .quantity-buttons{
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    }
+
+
+    }
+
+    .right{
+        width: 40%;
+        
+        img{
+      max-width: 80%;
+      max-height: 80%;
+      object-fit: scale-down;
+        }
+
+    }
+      
+
+    }  
+     
+}
+
+ .buttons-container{
+height: 15%;
+
+.bottons-row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 95%;
+
+    .button-container{
+    width: 48%; 
+    }
+}
+
+.total-container{
+    padding-top: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    .text{
+        font-size: 16px;
+        font-weight: 500;
+        font-family: Roboto;
+    }
+
+    .value{
+        font-size: 16px;
+        font-weight: 700;
+        font-family: Raleway;
+        
+    }
+}
+    }
+
 }
 
 .visible{
-    display: block;
+    display: flex;
+    flex-direction: column;
+
 }
 
 

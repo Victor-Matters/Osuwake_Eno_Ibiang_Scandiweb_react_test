@@ -58,7 +58,7 @@ class PDP extends Component {
   componentDidMount() {
     this.getProductData()
     window.scrollTo(0, 0)
-    this.props.setCartItems([])
+    //   this.props.setCartItems([])
   }
 
 
@@ -140,37 +140,7 @@ class PDP extends Component {
   addProductToCart(item) {
 
     let cartItems = [...this.props.cartItems];
-
-    //First Am checking if there exist any product in the cart 
-    // with thesame exact attributes
-    let identicalProductExist = false, indexOfIdentiticalProduct = null
-    let choiceMatchCount = 0;
-
-    for (let i = 0; i < cartItems.length; i++) {
-      choiceMatchCount = 0
-      if (cartItems[i].id === item.id) {
-        for (let j = 0; j < cartItems[i].choices.length; j++) {
-          if ((item.choices[j].name === cartItems[i].choices[j].name)
-            && (item.choices[j].choice === cartItems[i].choices[j].choice)) {
-            choiceMatchCount += 1
-          }
-        }
-
-        if (choiceMatchCount === item.choices.length) {
-          identicalProductExist = true
-          indexOfIdentiticalProduct = i
-          break
-        }
-
-      }
-    }
-
-    if (identicalProductExist) {
-      alert('Already exist')
-    }
-    else {
-
-      //Adding a default initial quantity of value 1 to the product
+    
 
       item.quantity = 1
       cartItems.push(item)
@@ -179,7 +149,7 @@ class PDP extends Component {
       setTimeout(() => {
         this.setState({ notificationMessage: '' })
       }, 5000)
-    }
+    
 
   }
 
@@ -225,7 +195,7 @@ class PDP extends Component {
 
 
         this.addProductToCart(temp_productData)
-       
+
 
       }
     }
@@ -236,24 +206,24 @@ class PDP extends Component {
     let temp_cartItems = [...this.props.cartItems];
     let temp_product = { ...this.props.cartItems[index] };
 
-    if (temp_product.quantity===1){
-      temp_cartItems.splice(index, 1); 
+    if (temp_product.quantity === 1) {
+      temp_cartItems.splice(index, 1);
       this.props.setCartItems(temp_cartItems)
       this.setState({ notificationMessage: temp_product.name + ' removed from cart' })
-      
+
     }
-    else{
+    else {
       temp_product.quantity = temp_product.quantity - 1
       temp_cartItems[index] = temp_product
       this.props.setCartItems(temp_cartItems)
       this.setState({ notificationMessage: temp_product.name + ' removed from cart' })
-      
+
     }
 
     setTimeout(() => {
       this.setState({ notificationMessage: '' })
     }, 5000)
-    
+
   }
 
   increaseProductQuantity(index) {
@@ -306,32 +276,16 @@ class PDP extends Component {
 
 
 
-    let identicalProductExist = false,
-      indexOfIdentiticalProduct = null,
-      quantity = 0,
+    let productInCart = false,
+      indexOfProduct = null,
       item = { ...this.state.productData }
-    let choiceMatchCount = 0;
 
-    item.choices = productAttributes
 
     for (let i = 0; i < cartItems.length; i++) {
-      choiceMatchCount = 0
       if (cartItems[i].id === item.id) {
-
-        for (let j = 0; j < cartItems[i].choices.length; j++) {
-          if ((item.choices[j].name === cartItems[i].choices[j].name)
-            && (item.choices[j].choice === cartItems[i].choices[j].choice)) {
-            choiceMatchCount += 1
-          }
-        }
-
-        if (choiceMatchCount === item.choices.length) {
-          identicalProductExist = true
-          indexOfIdentiticalProduct = i
-          quantity = item.quantity
-          break
-        }
-
+        indexOfProduct = i
+        productInCart = true
+        break;
       }
     }
 
@@ -416,12 +370,12 @@ class PDP extends Component {
               <p className="product-attribute-header">PRICE:</p>
               <p className="price">{productData.prices[selectedCurrency].currency.symbol + " " + productData.prices[selectedCurrency].amount}</p>
               <br />
-              {identicalProductExist ? <div className='product-in-cart-bottom'>
-                <button onClick={() => this.decreaseProductQuantity(indexOfIdentiticalProduct)}>
+              {productInCart ? <div className='product-in-cart-bottom'>
+                <button onClick={() => this.decreaseProductQuantity(indexOfProduct)}>
                   {'<'}
                 </button>
-                <span>{cartItems[indexOfIdentiticalProduct].quantity}</span>
-                <button onClick={() => this.increaseProductQuantity(indexOfIdentiticalProduct)}>
+                <span>{cartItems[indexOfProduct].quantity}</span>
+                <button onClick={() => this.increaseProductQuantity(indexOfProduct)}>
                   {'>'}
                 </button>
 
