@@ -129,6 +129,8 @@ class CartPage extends Component {
 
     const cartItems = this.props.cartItems
     const selectedCurrency = this.props.selectedCurrency
+    const showCart = this.props.showCart
+
 
     let totalQuantityOfProducts = 0;
     let totalPrice = 0;
@@ -139,7 +141,8 @@ class CartPage extends Component {
     }
 
     return (
-      <CartPageContainer>
+      <CartPageContainer dimContent={showCart}>
+        <div className='dim-overlay' ></div>
         <div className='header-container'>
           <h2>CART</h2>
         </div>
@@ -267,6 +270,8 @@ const mapDispatchToProps = (dispatch) => {
 const mapStateToProps = state => ({
   cartItems: state.cartSlice.cartItems,
   selectedCurrency: state.navSlice.selectedCurrency,
+  showCart: state.navSlice.showCart
+
 
 })
 

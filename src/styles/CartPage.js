@@ -2,10 +2,21 @@ import styled from "styled-components";
 
 
 export const CartPageContainer = styled.div`
-min-height: 50vh;
+background: #FFFFFF;
+display: flex;
+height: 90vh;
+flex-direction: column;
 
-margin: 50px;
 
+.dim-overlay{
+  height: 100vh;
+  background: gray;
+  width: 100%;
+  position: fixed;
+  opacity: 60% ;
+  display:   ${props => props.dimContent ? 'block' : 'none'};
+  z-index: 1; 
+}
 
 .header-container{
 
@@ -13,6 +24,7 @@ margin: 50px;
   margin-bottom: 15px; 
 border-bottom: 1px solid #E5E5E5; 
 padding-bottom: 40px;
+margin-left: 50px;
    h2{
 font-family: 'Raleway';
 font-style: normal;
@@ -26,6 +38,7 @@ color: #1D1F22;
 
 .items-container{
 
+margin-left: 50px;
 
   .cart-item{
     border-bottom: 1px solid #E5E5E5;
@@ -219,7 +232,6 @@ span{
     font-weight: 700;
 }
     }
-  
    
     width: 25%;
     display: flex;
@@ -233,6 +245,15 @@ span{
     .cart-item{
     .right{
         width: 50%;
+
+         .left-arrow{
+            right: 110px;
+        }
+
+        .right-arrow{
+            right: 70px;
+            
+        }
     }
   }
 }
