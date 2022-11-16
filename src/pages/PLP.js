@@ -5,16 +5,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
 import { setFocusedCategoryData, setFocusedProductId, setLoading, setError } from '../redux/slices/dataSlice'
 import { setFocusedTab } from '../redux/slices/navSlice'
-
+import Notification from '../components/Notification.jsx';
 import { CategoryContainer, ItemsContainer, PLPContainer } from '../styles/PLP.js';
 import Card from '../components/Card.jsx';
 import Loading from '../components/Loading.jsx';
+import { setCartItems } from '../redux/slices/cartSlice.js';
 
 
 const GET_CATEGORIES = gql`
   query {
      categories{    
-      name
+      name,
       }
   }
 `;
@@ -30,7 +31,8 @@ query  {
         inStock, 
         gallery, 
         prices{currency{label, symbol} amount},
-    }
+        attributes{id, name, type, items{displayValue, value, id}}
+    },
   }
 }
 `;
@@ -44,7 +46,8 @@ class PLP extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            all_categories: []
+            all_categories: [],
+            notificationMessage: ''
         }
     }
 
@@ -103,6 +106,110 @@ class PLP extends React.Component {
     }
 
 
+    onCartIconClick(product, index) {
+        const attributes = product.attributes
+        const cartItems = [...this.props.cartItems]
+
+
+        //Making an iterable copy of product
+        const _product = { ...product }
+
+        if (cartItems.length > 0) {
+            // Checking if cart id has any product with same id
+            let productWithSameIdFound = false;
+            let index_of_productWithSameId = null;
+
+            for (let i = 0; i < cartItems.length; i++) {
+                if (cartItems[i].id === product.id) {
+                    productWithSameIdFound = true
+                    index_of_productWithSameId = i
+                }
+            }
+
+            if (productWithSameIdFound) {
+
+                /// Increment quantity of product in the bag instead
+                let cartItem = { ...cartItems[index_of_productWithSameId] }
+
+                cartItem.quantity = cartItem.quantity + 1
+
+
+                cartItems[index_of_productWithSameId] = cartItem
+
+
+                this.props.setCartItems(cartItems)
+
+                this.setState({ notificationMessage: product.name + ' added to cart' })
+                setTimeout(() => {
+                    this.setState({ notificationMessage: '' })
+                }, 5000)
+
+            }
+
+            else {
+                //If Product has no attributes directly add product to cart
+                if (attributes.length === 0) {
+                    this.addProductToCart(_product)
+                }
+                else {
+                    //select some default attribute choices for the user before adding
+                    //product to the cart
+                    let _attributes = [..._product.attributes]
+                    for (let i = 0; i < _attributes.length; i++) {
+                        let _attribute = { ...attributes[i] }
+
+                        _attribute.choiceIndex = 0
+                        _attributes[i] = _attribute
+
+                    }
+                    _product.attributes = _attributes
+
+                    this.addProductToCart(_product)
+                }
+            }
+        }
+
+        else {
+            //If Product has no attributes directly add product to cart
+            if (attributes.length === 0) {
+
+                this.addProductToCart(_product)
+            }
+            else {
+                //select some default attribute choices for the user before adding
+                //product to the cart
+                let _attributes = [..._product.attributes]
+                for (let i = 0; i < _attributes.length; i++) { 
+                let _attribute = {...attributes[i]}
+               
+                     _attribute.choiceIndex = 0
+                _attributes[i] = _attribute  
+                  
+                } 
+                _product.attributes =_attributes
+
+                this.addProductToCart(_product)
+                
+            }
+        }
+    }
+
+    addProductToCart(item) {
+
+        let cartItems = [...this.props.cartItems];
+
+        item.quantity = 1
+
+        cartItems.unshift(item)
+        this.props.setCartItems(cartItems)
+        this.setState({ notificationMessage: item.name + ' added to cart' })
+        setTimeout(() => {
+            this.setState({ notificationMessage: '' })
+        }, 5000)
+
+
+    }
+
 
     onProductImageClick(productId) {
 
@@ -134,7 +241,7 @@ class PLP extends React.Component {
         const showCart = this.props.showCart
         const focusedProductId = this.props.focusedProductId
 
-        if (loading || error!=='') {
+        if (loading || error !== '') {
             return (
                 <Loading
                     loadingMessage={'Please Wait..'}
@@ -167,12 +274,17 @@ class PLP extends React.Component {
                                         onProductImageClick={() => this.onProductImageClick(product.id)}
                                         onProductPriceClick={() => this.onProductPriceClick(product.id)}
                                         dimContent={showCart}
-                                        onCartClick={() => alert('')}
+                                        onCartClick={() => this.onCartIconClick(product, index)}
                                     />
                                 )
                             })}
                         </ItemsContainer>
                     </CategoryContainer>
+                    <Notification
+                        backgroundColor={"#5ECE7B"}
+                        message={this.state.notificationMessage}
+                        show={this.state.notificationMessage !== ''}
+                    />
                 </PLPContainer>
             );
         }
@@ -188,6 +300,8 @@ const mapDispatchToProps = (dispatch) => {
         setLoading: (item) => dispatch(setLoading(item)),
         setError: (item) => dispatch(setError(item)),
         setFocusedTab: (item) => dispatch(setFocusedTab(item)),
+        setCartItems: (item) => dispatch(setCartItems(item))
+
 
     }
 };
@@ -200,7 +314,9 @@ const mapStateToProps = state => ({
     focusedProductId: state.dataSlice.focusedProductId,
     loading: state.dataSlice.loading,
     error: state.dataSlice.error,
-    showCart: state.navSlice.showCart
+    showCart: state.navSlice.showCart,
+    cartItems: state.cartSlice.cartItems,
+
 })
 
 export const withRouter = (Component) => (props) => {

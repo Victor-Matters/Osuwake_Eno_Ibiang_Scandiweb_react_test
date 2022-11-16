@@ -52,13 +52,19 @@ class PDP extends Component {
       focusedGalleryIndex: 0,
       attributeValidationFocusIndex: 0,
       attributeValidationErrorFound: false,
-      notificationMessage: ''
+      notificationMessage: '',
     }
   }
+
+
+
   componentDidMount() {
+
     this.getProductData()
     window.scrollTo(0, 0)
-    //   this.props.setCartItems([])
+    // this.props.setCartItems([])
+    //   this.props.setProductAttributes([])
+
   }
 
 
@@ -98,35 +104,53 @@ class PDP extends Component {
         this.setState({ error: 'Oops ! Broken Link', showBackButton: true })
       }
       else {
-        this.setState({
-          loading: false,
-          productData: productData,
-        })
-        //Trying to mantain user's selected attributes
-        let persistedProductAttributes = this.props.productAttributes
-        let incomingProductAttributes = productData.attributes
+        //Maintain user's selected attributes from cart
+
+        let cartItems = [...this.props.cartItems]
+
+        let temp_productData = { ...productData }
+
+        if (cartItems.length > 0) {
+          // Checking if cart id has any product with same id
+          let productWithSameIdFound = false;
+          let index_of_productWithSameId = null;
+
+          for (let i = 0; i < cartItems.length; i++) {
+            if (cartItems[i].id === id) {
+              productWithSameIdFound = true
+              index_of_productWithSameId = i
+            }
+          }
+
+          if (productWithSameIdFound) {
+
+            temp_productData.attributes = cartItems[index_of_productWithSameId].attributes
+            this.setState({
+              loading: false,
+              productData: temp_productData
+            })
+
+            // console.log({cartItems: cartItems[index_of_productWithSameId]})
 
 
+          }
 
+          else {
+            this.setState({
+              loading: false,
+              productData: productData
+            })
+          }
 
-        if (persistedProductAttributes.length !== incomingProductAttributes.length) {
-          this.props.setProductAttributes(incomingProductAttributes)
         }
 
         else {
-
-          let identical = true;
-
-          for (let i = 0; i < incomingProductAttributes.length; i++) {
-
-            if (incomingProductAttributes[i].id !== persistedProductAttributes[i].id) {
-              identical = false
-            }
-          }
-          if (!identical) {
-            this.props.setProductAttributes(productData.attributes)
-          }
+          this.setState({
+            loading: false,
+            productData: productData
+          })
         }
+
       }
 
     }).catch(err => {
@@ -140,16 +164,16 @@ class PDP extends Component {
   addProductToCart(item) {
 
     let cartItems = [...this.props.cartItems];
-    
 
-      item.quantity = 1
-      cartItems.push(item)
-      this.props.setCartItems(cartItems)
-      this.setState({ notificationMessage: item.name + ' added to cart' })
-      setTimeout(() => {
-        this.setState({ notificationMessage: '' })
-      }, 5000)
-    
+
+    item.quantity = 1
+    cartItems.unshift(item)
+    this.props.setCartItems(cartItems)
+    this.setState({ notificationMessage: item.name + ' added to cart' })
+    setTimeout(() => {
+      this.setState({ notificationMessage: '' })
+    }, 5000)
+
 
   }
 
@@ -157,24 +181,34 @@ class PDP extends Component {
 
 
   addToCartClick() {
+    const { productData } = this.state
+
+    const attributes = productData.attributes
+    const _productData = { ...productData }
+
+   // _productData.quantity = 0
+
     if (this.props.cartItems === undefined) {
       this.props.setCartItems([])
     }
-    const productAttributes = this.props.productAttributes
 
-    if (productAttributes.length === 0) {
-      this.addProductToCart(this.state.productData)
+
+    if (attributes.length === 0) {
+      //Proceed to add product to cart without validating 
+      //attributes options selection
+
+      this.addProductToCart(_productData)
     }
     else {
+      //Validating if user has selected desired attributes options
       let errorFound = false
-      for (let i = 0; i < productAttributes.length; i++) {
-        if (productAttributes[i].choice === undefined) {
+      for (let i = 0; i < attributes.length; i++) {
+        if (attributes[i].choiceIndex === undefined) {
           this.setState({
             attributeValidationFocusIndex: i,
             attributeValidationErrorFound: true
           })
           setTimeout(() => {
-
             this.setState({ attributeValidationErrorFound: false })
           }, 3000);
           return
@@ -182,20 +216,8 @@ class PDP extends Component {
       }
 
       if (!errorFound) {
-        let choices = []
-        for (let i = 0; i < productAttributes.length; i++) {
-          choices.push({
-            name: productAttributes[i].name,
-            choice: productAttributes[i].choice
-          })
-        }
 
-        let temp_productData = { ...this.state.productData };
-        temp_productData.choices = choices
-
-
-        this.addProductToCart(temp_productData)
-
+        this.addProductToCart(_productData)
 
       }
     }
@@ -241,22 +263,78 @@ class PDP extends Component {
 
   }
 
-  onAttributeClick(attributeIndex, choice) {
+  onAttributeClick(attributeIndex, choiceIndex) {
+    
+    const { productData } = this.state
+    let cartItems = [...this.props.cartItems]
 
-    let temp_productAttributes = [...this.props.productAttributes];
+    //Making objects and array references to update 
+    // attributes choice selection on PDP
 
-    let temp_productAttribute = { ...temp_productAttributes[attributeIndex] };
+    let product = { ...this.state.productData };
+
+    let product_attributes = [...product.attributes];
+
+    let product_attribute = { ...product_attributes[attributeIndex] };
+
+    product_attribute.choiceIndex = choiceIndex
+
+    product_attributes[attributeIndex] = product_attribute
+
+    product.attributes = product_attributes
+
+    this.setState({ productData: product })
 
 
-    temp_productAttribute.choice = choice
+    //Checking if product with same id in cart such that if found the
+    //attribute option update should apply there as well
+    if (cartItems.length > 0) {
+      // Checking if cart id has any product with same id
+      let productWithSameIdFound = false;
+      let index_of_productWithSameId = null;
 
-    temp_productAttributes[attributeIndex] = temp_productAttribute
-    this.props.setProductAttributes(temp_productAttributes)
+      for (let i = 0; i < cartItems.length; i++) {
+        if (cartItems[i].id === productData.id) {
+          productWithSameIdFound = true
+          index_of_productWithSameId = i
+        }
+      }
+
+
+     
+
+//Checking if there is a product in cart with same id 
+// so i can update the new choices there too
+      if (productWithSameIdFound) {
+        /// Updating attributes choice selection on cart
+        let cartItem = { ...cartItems[index_of_productWithSameId] }
+
+        let cartItemAttributes = [...cartItem.attributes]
+
+        let cartItemAttribute = { ...cartItemAttributes[attributeIndex] }
+
+        cartItemAttribute.choiceIndex = choiceIndex
+
+        cartItemAttributes[attributeIndex] = cartItemAttribute
+
+        cartItem.attributes = cartItemAttributes
+
+        cartItems[index_of_productWithSameId] = cartItem
+
+        this.props.setCartItems(cartItems)
+
+      }
+
+      
+
+    }
 
 
   }
 
   render() {
+
+    //console.log(this.state.productData)
 
     const selectedCurrency = this.props.selectedCurrency
 
@@ -267,18 +345,18 @@ class PDP extends Component {
       productData,
       focusedGalleryIndex,
       attributeValidationErrorFound,
-      attributeValidationFocusIndex
+      attributeValidationFocusIndex,
     } = this.state
 
-    const productAttributes = this.props.productAttributes
     const cartItems = this.props.cartItems
     const showCart = this.props.showCart
 
 
-
-    let productInCart = false,
-      indexOfProduct = null,
-      item = { ...this.state.productData }
+    //Checking if product is in Cart so 
+    //that i can display Increment/decrement product quantity buttons
+    let productInCart = false
+    let indexOfProduct = null
+    const item = { ...this.state.productData }
 
 
     for (let i = 0; i < cartItems.length; i++) {
@@ -288,8 +366,6 @@ class PDP extends Component {
         break;
       }
     }
-
-
 
 
 
@@ -335,26 +411,29 @@ class PDP extends Component {
                     <p className="product-attribute-header">{attribute.name}:</p>
                     <div className={attribute.id === "Color" ? "attribute-row1" : "attribute-row2"}>
                       {
-                        attribute.items.map((item, i) => {
+                        productData.attributes[index].items.map((item, i) => {
                           return (
                             <React.Fragment key={i}>
                               {
+                                //Checking for items with color attribute
+                                // and using ColorBox component for them otherwise using
+                                // bordered box for all items with type text
                                 attribute.id === "Color" ?
                                   <ColorBox
                                     key={i}
                                     boxHeight={"25px"}
                                     boxWidth={"25px"}
                                     boxColor={item.value}
-                                    selected={item.value === productAttributes[index]?.choice}
-                                    onClick={() => this.onAttributeClick(index, item.value)}
+                                    selected={i === productData.attributes[index].choiceIndex}
+                                    onClick={() => this.onAttributeClick(index, i)}
                                   />
                                   :
                                   <AttributeBox key={i}
                                     boxHeight={"40px"}
                                     fontSize={"16px"}
                                     sizeText={item.value}
-                                    selected={item.value === productAttributes[index]?.choice}
-                                    onClick={() => this.onAttributeClick(index, item.value)}
+                                    selected={i === productData.attributes[index].choiceIndex}
+                                    onClick={() => this.onAttributeClick(index, i)}
                                   />
 
                               }
@@ -407,7 +486,6 @@ const mapDispatchToProps = (dispatch) => {
 
 const mapStateToProps = state => ({
   selectedCurrency: state.navSlice.selectedCurrency,
-  productAttributes: state.cartSlice.productAttributes,
   cartItems: state.cartSlice.cartItems,
   showCart: state.navSlice.showCart,
 

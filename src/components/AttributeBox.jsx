@@ -7,6 +7,7 @@ export default class AttributeBox extends Component {
     return (
       <AttributeBoxContainer
         boxHeight={this.props.boxHeight}
+        boxWidth={this.props.boxWidth}
         fontSize={this.props.fontSize}
         selected={this.props.selected}
         onClick={this.props.onClick}
@@ -16,3 +17,4 @@ export default class AttributeBox extends Component {
     )
   }
 }
+

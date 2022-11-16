@@ -122,9 +122,12 @@ font-size: 17px;
         flex-direction:row;
         align-items: center;
         margin-left: 35px; 
-        cursor: pointer;
         position: relative;
         display: inline-block;
+
+        .cart-icon{
+            cursor: pointer;
+        }
 
 .dropdown-content-cart {
   display: none;
@@ -160,7 +163,16 @@ font-size: 17px;
     color: #1D1F22;
     font-weight: 700;
     margin-top: 10px;
-height: 8%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 8%;
+
+    .empty{
+        font-size: 11px;
+        font-weight: 400;
+        cursor: pointer;
+    }
 
     span{
         font-weight: normal;  
@@ -229,6 +241,11 @@ margin-right: 20px;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+
+    .button{
+        cursor: pointer;
+
+    }
     }
 
 
@@ -252,6 +269,8 @@ margin-right: 20px;
 
  .buttons-container{
 height: 15%;
+
+
 
 .bottons-row{
     display: flex;
@@ -298,6 +317,7 @@ height: 15%;
 
 
         .total-tag{
+            cursor: pointer;
             height: 20px;
             width: 20px;
             border-radius: 20px;

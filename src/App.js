@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import Header from './components/Header';
 import PLP from './pages/PLP';
 import PDP from './pages/PDP';
+import CartPage from './pages/CartPage';
 
 class App extends React.Component {
 
@@ -25,12 +26,12 @@ class App extends React.Component {
   render() {
 
     return (
-      <div onClick={() => this.hideDropDown()} className='App'>
-       
+      <div onClick={() => this.hideDropDown()} className='App'>      
         <Header />
         <Routes>
           <Route path="/:categoryName" element={<PLP />} /> 
           <Route path="/:categoryName/:product_id" element={<PDP />} /> 
+          <Route path="/:categoryName/cart-page" element={<CartPage />} /> 
           <Route
             path="/"
             element={<Navigate to="/:categoryName" replace />}

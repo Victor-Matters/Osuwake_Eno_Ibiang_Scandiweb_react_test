@@ -4,7 +4,7 @@ import { HeaderContainer } from '../styles/Header'
 import { gql } from '@apollo/client';
 import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
-import { setProductAttributes, setCartItems } from '../redux/slices/cartSlice'
+import {  setCartItems } from '../redux/slices/cartSlice'
 import { setFocusedCategoryData, setLoading, setError } from '../redux/slices/dataSlice'
 import { setFocusedTab, setSelectedCurrency, show_CurrencyDropDown, hide_CurrencyDropDown, setShowCart } from '../redux/slices/navSlice'
 import { ReactComponent as BrandIcon } from "../assets/svg/icon1.svg";
@@ -84,6 +84,7 @@ class Header extends Component {
     componentDidMount() {
         this.getCurrencies()
         this.getCategories()
+
     }
 
     getCategoryByName = async (categoryName) => {
@@ -110,7 +111,30 @@ class Header extends Component {
 
     }
 
-    onAttributeClick() {
+    onAttributeClick(attributeIndex, choiceIndex, product_index) {
+
+
+        let cartItems = [...this.props.cartItems]
+
+
+        /// Updating attributes choice selection on cart
+        let cartItem = { ...cartItems[product_index] }
+
+        let cartItemAttributes = [...cartItem.attributes]
+
+        let cartItemAttribute = { ...cartItemAttributes[attributeIndex] }
+
+        cartItemAttribute.choiceIndex = choiceIndex
+
+        cartItemAttributes[attributeIndex] = cartItemAttribute
+
+        cartItem.attributes = cartItemAttributes
+
+        cartItems[product_index] = cartItem
+
+        this.props.setCartItems(cartItems)
+
+
 
     }
 
@@ -154,8 +178,19 @@ class Header extends Component {
 
     }
 
-    render() {
 
+    onViewBagClick = () => {
+        
+    this.props.setShowCart(!this.props.showCart);
+     this.props.navigate(this.props.focusedTab+'/cart-page')
+    }
+
+    onCheckoutClick=()=>{
+        console.log(this.props.cartItems)
+        alert('Dear Sir/Madam, No action was specified for the checkout button in the Test instructions. I have however logged out to the console the cart items the user is supposed to be checking out with.')
+    }
+
+    render() {
 
         const selectedCurrency = this.props.selectedCurrency
         const showCurrencyDropDown = this.props.showCurrencyDropDown
@@ -182,11 +217,11 @@ class Header extends Component {
                     <ul>
                         {categories.map((item, index) => {
                             return (
-                                <li onClick={() => {
+                                <li key={index} onClick={() => {
                                     this.props.navigate(item.name);
                                     this.props.setFocusedTab(item.name);
                                     this.getCategoryByName(item.name)
-                                }} className={`nav-item ${item.name === focusedTab ? "active" : ""}`} key={index}>{item.name}</li>
+                                }} className={`nav-item ${item.name === focusedTab ? "active" : ""}`}>{item.name}</li>
                             )
                         })}
                     </ul>
@@ -194,7 +229,7 @@ class Header extends Component {
                 <div className='center'>
                     <BrandIcon />
                 </div>
-                <div className='right'>
+                <div  className='right'>
                     <div className='items'>
                         <div className='currency-dropdown'>
                             <div onClick={() => this.dropDownClick()} className='currency'>
@@ -215,17 +250,18 @@ class Header extends Component {
                             </div>
                         </div>
                         <div className='cart'>
-                            <EmptyCart onClick={() => this.props.setShowCart(!showCart)} />
+                            <EmptyCart className='cart-icon' onClick={() => this.props.setShowCart(!showCart)} />
                             {this.props.cartItems.length > 0 && <div onClick={() => this.props.setShowCart(!showCart)} className='total-tag'>{totalQuantityOfProducts}</div>}
                             <div className={`dropdown-content-cart ${showCart ? "visible" : ""}`}>
                                 {cartItems.length > 0 ? <React.Fragment>
                                     <div className='header'>
                                         <p >My Bag <span>{totalQuantityOfProducts} items</span></p>
+                                        <p onClick={()=>this.props.setCartItems([])} className='empty'>Click to Empty Bag</p>
                                     </div>
                                     <div className='items-container'>
-                                        {cartItems.map((product, index) => {
+                                        {cartItems.map((product, product_index) => {
                                             return (
-                                                <div key={index} className='cart-item'>
+                                                <div key={product_index} className='cart-item'>
                                                     <section className='left'>
                                                         <section className='attributes'>
                                                             <p className='name'>{product.name}</p>
@@ -234,7 +270,7 @@ class Header extends Component {
                                                             </p>
                                                             {product.attributes.map((attribute, index) => {
                                                                 return (
-                                                                    <div className='attributes-container'>
+                                                                    <div key={index} className='attributes-container'>
                                                                         <p className='header'>
                                                                             {attribute.name}:
                                                                         </p>
@@ -250,16 +286,16 @@ class Header extends Component {
                                                                                                         boxHeight={"17px"}
                                                                                                         boxWidth={"17px"}
                                                                                                         boxColor={item.value}
-                                                                                                        selected={item.value === product.choices[index]?.choice}
-                                                                                                        onClick={() => this.onAttributeClick(index, item.value)}
+                                                                                                        selected={i === product.attributes[index].choiceIndex}
+                                                                                                        onClick={() => this.onAttributeClick(index, i, product_index)}
                                                                                                     />
                                                                                                     :
                                                                                                     <AttributeBox key={i}
                                                                                                         boxHeight={"20px"}
                                                                                                         fontSize={"13px"}
                                                                                                         sizeText={item.value}
-                                                                                                        selected={item.value === product.choices[index]?.choice}
-                                                                                                        onClick={() => this.onAttributeClick(index, item.value)}
+                                                                                                        selected={i === product.attributes[index].choiceIndex}
+                                                                                                        onClick={() => this.onAttributeClick(index, i, product_index)}
                                                                                                     />
 
                                                                                             }
@@ -273,13 +309,13 @@ class Header extends Component {
                                                             })}
                                                         </section>
                                                         <section className='quantity-buttons'>
-                                                            <PlusSquare onClick={() => this.increaseProductQuantity(index)} />
+                                                            <PlusSquare className='button' onClick={() => this.increaseProductQuantity(product_index)} />
                                                             {product.quantity}
-                                                            <MinusSquare onClick={() => this.decreaseProductQuantity(index)} />
+                                                            <MinusSquare className='button' onClick={() => this.decreaseProductQuantity(product_index)} />
                                                         </section>
                                                     </section>
                                                     <section className='right'>
-                                                        <img alt='item-image' src={product.gallery[0]} />
+                                                        <img alt={product.name} src={product.gallery[0]} />
                                                     </section>
                                                 </div>
                                             )
@@ -294,20 +330,14 @@ class Header extends Component {
                                         <div className='bottons-row'>
                                             <div className='button-container'>
                                                 <ButtonType2
-                                                    onClick={() => {
-                                                        this.props.setShowCart(!showCart);
-                                                        this.props.navigate('/')
-                                                    }}
+                                                    onClick={() => this.onViewBagClick()}
                                                     buttonText="VIEW BAG"
                                                 />
                                             </div>
                                             <div className='button-container'>
                                                 <ButtonType1
-                                                fontSize="14px"
-                                                    onClick={() => {
-                                                        this.props.setShowCart(!showCart);
-                                                        this.props.navigate('/')
-                                                    }}
+                                                    fontSize="14px"
+                                                    onClick={() => this.onCheckoutClick()}
                                                     buttonText="CHECKOUT"
                                                 />
                                             </div>
