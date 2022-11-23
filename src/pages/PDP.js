@@ -9,7 +9,8 @@ import ColorBox from '../components/ColorBox.jsx';
 import { PDPContainer } from '../styles/PDP.js';
 import ButtonType1 from '../components/ButtonType1.jsx';
 import Notification from '../components/Notification.jsx';
-import { GET_CATEGORY_querry_type2, GET_PRODUCT } from '../graphql/queries.js';
+import { GET_CATEGORY, GET_PRODUCT } from '../graphql/queries.js';
+import { setShowCart } from '../redux/slices/navSlice.js';
 const parse = require('html-react-parser');
 
 
@@ -26,10 +27,9 @@ class PDP extends Component {
       attributeValidationFocusIndex: 0,
       attributeValidationErrorFound: false,
       notificationMessage: '',
+      notificationType: '',
     }
   }
-
-
 
   componentDidMount() {
 
@@ -51,7 +51,7 @@ class PDP extends Component {
 
   getCategoryByName = async (categoryName) => {
     await client.query({
-      query: GET_CATEGORY_querry_type2(categoryName)
+      query: GET_CATEGORY(categoryName)
     }).then((result) => {
       let categoryData = result.data.category
       if (categoryData === null) {
@@ -135,6 +135,8 @@ class PDP extends Component {
 
 
   addProductToCart(item) {
+const {productData} = this.state
+    if(productData.inStock) {
 
     let cartItems = [...this.props.cartItems];
 
@@ -142,12 +144,18 @@ class PDP extends Component {
     item.quantity = 1
     cartItems.unshift(item)
     this.props.setCartItems(cartItems)
-    this.setState({ notificationMessage: item.name + ' added to cart' })
+    this.setState({ notificationType: 'success', notificationMessage: item.brand + ' ' + item.name + ' added to cart' })
     setTimeout(() => {
       this.setState({ notificationMessage: '' })
     }, 5000)
 
-
+  }
+  else{
+      this.setState({ notificationType: 'error', notificationMessage: productData.brand + ' ' + productData.name + ' is out of stock' })
+      setTimeout(() => {
+        this.setState({ notificationMessage: '' })
+      }, 5000)
+  }
   }
 
 
@@ -159,7 +167,7 @@ class PDP extends Component {
     const attributes = productData.attributes
     const _productData = { ...productData }
 
-   // _productData.quantity = 0
+    // _productData.quantity = 0
 
     if (this.props.cartItems === undefined) {
       this.props.setCartItems([])
@@ -204,14 +212,14 @@ class PDP extends Component {
     if (temp_product.quantity === 1) {
       temp_cartItems.splice(index, 1);
       this.props.setCartItems(temp_cartItems)
-      this.setState({ notificationMessage: temp_product.name + ' removed from cart' })
+      this.setState({ notificationType: 'error', notificationMessage: temp_product.brand + ' ' + temp_product.name + ' removed from cart' })
 
     }
     else {
       temp_product.quantity = temp_product.quantity - 1
       temp_cartItems[index] = temp_product
       this.props.setCartItems(temp_cartItems)
-      this.setState({ notificationMessage: temp_product.name + ' removed from cart' })
+      this.setState({ notificationType: 'error', notificationMessage: temp_product.brand + ' ' + temp_product.name + ' removed from cart' })
 
     }
 
@@ -229,7 +237,7 @@ class PDP extends Component {
 
     temp_cartItems[index] = temp_product
     this.props.setCartItems(temp_cartItems)
-    this.setState({ notificationMessage: temp_product.name + ' added to cart' })
+    this.setState({ notificationType: 'success', notificationMessage: temp_product.brand + ' ' + temp_product.name + ' added to cart' })
     setTimeout(() => {
       this.setState({ notificationMessage: '' })
     }, 5000)
@@ -237,7 +245,7 @@ class PDP extends Component {
   }
 
   onAttributeClick(attributeIndex, choiceIndex) {
-    
+
     const { productData } = this.state
     let cartItems = [...this.props.cartItems]
 
@@ -274,10 +282,10 @@ class PDP extends Component {
       }
 
 
-     
 
-//Checking if there is a product in cart with same id 
-// so i can update the new choices there too
+
+      //Checking if there is a product in cart with same id 
+      // so i can update the new choices there too
       if (productWithSameIdFound) {
         /// Updating attributes choice selection on cart
         let cartItem = { ...cartItems[index_of_productWithSameId] }
@@ -298,7 +306,7 @@ class PDP extends Component {
 
       }
 
-      
+
 
     }
 
@@ -319,6 +327,8 @@ class PDP extends Component {
       focusedGalleryIndex,
       attributeValidationErrorFound,
       attributeValidationFocusIndex,
+      notificationType,
+      notificationMessage
     } = this.state
 
     const cartItems = this.props.cartItems
@@ -356,7 +366,7 @@ class PDP extends Component {
     else {
       return (
         <PDPContainer dimContent={showCart} >
-          <div className='dim-overlay'></div>
+          <div className='dim-overlay' onClick={() => this.props.setShowCart(false)} ></div>
 
           {/* Column for Images Gallery */}
           <div className='column1'>
@@ -407,7 +417,8 @@ class PDP extends Component {
                                     sizeText={item.value}
                                     selected={i === productData.attributes[index].choiceIndex}
                                     onClick={() => this.onAttributeClick(index, i)}
-                                  />
+                                    isCursor={true}
+                                    />
 
                               }
                             </React.Fragment>
@@ -422,7 +433,7 @@ class PDP extends Component {
               <p className="product-attribute-header">PRICE:</p>
               <p className="price">{productData.prices[selectedCurrency].currency.symbol + " " + productData.prices[selectedCurrency].amount}</p>
               <br />
-              {productInCart ? <div className='product-in-cart-bottom'>
+              {/* {productInCart ? <div className='product-in-cart-bottom'>
                 <button onClick={() => this.decreaseProductQuantity(indexOfProduct)}>
                   {'<'}
                 </button>
@@ -434,12 +445,13 @@ class PDP extends Component {
               </div>
                 :
                 <ButtonType1 onClick={() => this.addToCartClick()} buttonText="Add to cart" />
-              }
+              } */}
+              <ButtonType1 onClick={() => { productInCart ? this.increaseProductQuantity(indexOfProduct) : this.addToCartClick() }} buttonText="Add to cart" />
               <div className='product-description' >{parse(productData.description)}</div>
               <Notification
-                backgroundColor={"#5ECE7B"}
-                message={this.state.notificationMessage}
-                show={this.state.notificationMessage !== ''}
+                backgroundColor={notificationType === 'success' ? "#5ECE7B" : "red"}
+                message={notificationMessage}
+                show={notificationMessage !== ''}
               />
             </div>
           </div>
@@ -453,7 +465,8 @@ class PDP extends Component {
 const mapDispatchToProps = (dispatch) => {
   return {
     setProductAttributes: (item) => dispatch(setProductAttributes(item)),
-    setCartItems: (item) => dispatch(setCartItems(item))
+    setCartItems: (item) => dispatch(setCartItems(item)),
+    setShowCart: () => dispatch(setShowCart())
   }
 };
 

@@ -137,7 +137,7 @@ font-size: 17px;
   right: -20px;
   top: 45px;
   padding: 10px;
-  height: 80vh;
+  max-height: 55vh;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
 
@@ -167,6 +167,7 @@ font-size: 17px;
     flex-direction: row;
     justify-content: space-between;
     height: 8%;
+    margin-bottom: 20px;
 
     .empty{
         font-size: 11px;
@@ -224,9 +225,13 @@ margin-right: 20px;
 }
 
 
-
+.brand{
+        font-size: 16px;
+        margin-bottom: 7px;
+    }
     .name{
         font-size: 16px;
+        margin-bottom: 9px;
     }
     .amount{
         margin-top: 5px;
@@ -287,6 +292,7 @@ height: 15%;
 
 .total-container{
     padding-top: 10px;
+    padding-bottom: 30px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

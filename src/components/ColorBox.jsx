@@ -7,6 +7,7 @@ export default class ColorBox extends Component {
     render() {
         return (
             <ColorBoxContainer
+                isCursor={this.props.isCursor}
                 boxHeight={this.props.boxHeight}
                 boxWidth={this.props.boxWidth}
                 boxColor={this.props.boxColor}
@@ -17,4 +18,8 @@ export default class ColorBox extends Component {
             </ColorBoxContainer>
         )
     }
+}
+
+ColorBox.defaultProps = {
+    isCursor: true
 }

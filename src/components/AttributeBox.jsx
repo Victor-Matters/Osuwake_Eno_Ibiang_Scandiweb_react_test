@@ -6,6 +6,7 @@ export default class AttributeBox extends Component {
   render() {
     return (
       <AttributeBoxContainer
+        isCursor={this.props.isCursor}
         boxHeight={this.props.boxHeight}
         boxWidth={this.props.boxWidth}
         fontSize={this.props.fontSize}
@@ -16,5 +17,9 @@ export default class AttributeBox extends Component {
       </AttributeBoxContainer>
     )
   }
+}
+
+AttributeBox.defaultProps={
+  isCursor: true
 }
 

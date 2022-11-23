@@ -12,7 +12,7 @@ border: 1px solid #1D1F22;
 margin-right: 10px;
 padding: 0 5px;
 color: ${props => props.selected ?"#FFFFFF" : "#1D1F22"};
-cursor: pointer;
+cursor:${props => props.isCursor ? "pointer" : "default"};
 :hover{
     font-weight: 500;
 }

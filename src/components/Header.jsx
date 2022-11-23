@@ -190,6 +190,13 @@ class Header extends Component {
         alert('Dear Sir/Madam, No action was specified for the checkout button in the Test instructions. I have however logged out to the console the cart items the user is supposed to be checking out with.')
     }
 
+     hideCartOverlay=()=>{
+         if (this.props.showCart) {
+             this.props.setShowCart(false)
+         }
+    }
+
+
     render() {
 
         const selectedCurrency = this.props.selectedCurrency
@@ -211,9 +218,10 @@ class Header extends Component {
         }
 
 
+
         return (
-            <HeaderContainer >
-                <div className='left'>
+            <HeaderContainer  >
+                <div className='left' onClick={() => this.hideCartOverlay()}>
                     <ul>
                         {categories.map((item, index) => {
                             return (
@@ -226,12 +234,12 @@ class Header extends Component {
                         })}
                     </ul>
                 </div>
-                <div className='center'>
+                <div className='center' onClick={() => this.hideCartOverlay()}>
                     <BrandIcon />
                 </div>
                 <div  className='right'>
                     <div className='items'>
-                        <div className='currency-dropdown'>
+                        <div onClick={() => this.hideCartOverlay()} className='currency-dropdown'>
                             <div onClick={() => this.dropDownClick()} className='currency'>
                                 <span>{currencies[selectedCurrency]?.symbol}</span>
                                 {showCurrencyDropDown ? <ArrowUp /> : <ArrowDown />}
@@ -264,6 +272,7 @@ class Header extends Component {
                                                 <div key={product_index} className='cart-item'>
                                                     <section className='left'>
                                                         <section className='attributes'>
+                                                            <p className='brand'>{product.brand}</p>
                                                             <p className='name'>{product.name}</p>
                                                             <p className='amount'>
                                                                 {product.prices[selectedCurrency].currency.symbol + " " + product.prices[selectedCurrency].amount}
@@ -287,7 +296,8 @@ class Header extends Component {
                                                                                                         boxWidth={"17px"}
                                                                                                         boxColor={item.value}
                                                                                                         selected={i === product.attributes[index].choiceIndex}
-                                                                                                        onClick={() => this.onAttributeClick(index, i, product_index)}
+                                                                                                        isCursor={false}
+                                                                                                      //  onClick={() => this.onAttributeClick(index, i, product_index)}
                                                                                                     />
                                                                                                     :
                                                                                                     <AttributeBox key={i}
@@ -295,7 +305,8 @@ class Header extends Component {
                                                                                                         fontSize={"13px"}
                                                                                                         sizeText={item.value}
                                                                                                         selected={i === product.attributes[index].choiceIndex}
-                                                                                                        onClick={() => this.onAttributeClick(index, i, product_index)}
+                                                                                                        isCursor={false}
+                                                                                                        //  onClick={() => this.onAttributeClick(index, i, product_index)}
                                                                                                     />
 
                                                                                             }

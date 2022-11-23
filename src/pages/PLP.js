@@ -3,22 +3,23 @@ import { connect } from 'react-redux';
 import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
 import { setFocusedCategoryData, setFocusedProductId, setLoading, setError } from '../redux/slices/dataSlice'
-import { setFocusedTab } from '../redux/slices/navSlice'
+import { setFocusedTab, setShowCart } from '../redux/slices/navSlice'
 import Notification from '../components/Notification.jsx';
 import { CategoryContainer, ItemsContainer, PLPContainer } from '../styles/PLP.js';
 import Card from '../components/Card.jsx';
 import Loading from '../components/Loading.jsx';
 import { setCartItems } from '../redux/slices/cartSlice.js';
-import { GET_CATEGORIES, GET_CATEGORY_querry_type1 } from '../graphql/queries.js';
+import { GET_CATEGORIES, GET_CATEGORY } from '../graphql/queries.js';
 
+let isQuickShopIconClicked = false
 
 
 class PLP extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            all_categories: [],
-            notificationMessage: ''
+            notificationMessage: '',
+            notificationType: '',
         }
     }
 
@@ -27,7 +28,7 @@ class PLP extends React.Component {
         this.props.setLoading(true)
         this.props.setError('')
         await client.query({
-            query: GET_CATEGORY_querry_type1(categoryName)
+            query: GET_CATEGORY(categoryName)
         }).then((result) => {
             let categoryData = result.data.category
             this.props.setFocusedCategoryData(categoryData)
@@ -46,8 +47,7 @@ class PLP extends React.Component {
             query: GET_CATEGORIES
         }).then((result) => {
             let all_categories = result.data.categories
-            this.setState({ all_categories: all_categories })
-
+      
             // Here am Checking if the name of the passed route(categoryName) exist in our list of categories from backend
             // If it is not found i will present client with our 0 index category. Which for this test is "all" 
 
@@ -62,7 +62,6 @@ class PLP extends React.Component {
             }
             else {
                 this.getCategoryByName(all_categories[0].name)
-
             }
         }
         ).catch(err => {
@@ -76,14 +75,14 @@ class PLP extends React.Component {
 
     }
 
-
-    onCartIconClick(product, index) {
+    onCartIconClick(product) {
+        isQuickShopIconClicked = true
+        if(product.inStock){
         const attributes = product.attributes
         const cartItems = [...this.props.cartItems]
-
-
         //Making an iterable copy of product
         const _product = { ...product }
+
 
         if (cartItems.length > 0) {
             // Checking if cart id has any product with same id
@@ -110,7 +109,7 @@ class PLP extends React.Component {
 
                 this.props.setCartItems(cartItems)
 
-                this.setState({ notificationMessage: product.name + ' added to cart' })
+                this.setState({ notificationType: 'success', notificationMessage: product.brand + ' ' + product.name + ' added to cart' })
                 setTimeout(() => {
                     this.setState({ notificationMessage: '' })
                 }, 5000)
@@ -150,19 +149,26 @@ class PLP extends React.Component {
                 //select some default attribute choices for the user before adding
                 //product to the cart
                 let _attributes = [..._product.attributes]
-                for (let i = 0; i < _attributes.length; i++) { 
-                let _attribute = {...attributes[i]}
-               
-                     _attribute.choiceIndex = 0
-                _attributes[i] = _attribute  
-                  
-                } 
-                _product.attributes =_attributes
+                for (let i = 0; i < _attributes.length; i++) {
+                    let _attribute = { ...attributes[i] }
+
+                    _attribute.choiceIndex = 0
+                    _attributes[i] = _attribute
+
+                }
+                _product.attributes = _attributes
 
                 this.addProductToCart(_product)
-                
+
             }
         }
+    }
+    else{
+            this.setState({ notificationType: 'error', notificationMessage: product.brand + ' '+ product.name + ' is out of stock' })
+            setTimeout(() => {
+                this.setState({ notificationMessage: '' })
+            }, 5000)
+    }
     }
 
     addProductToCart(item) {
@@ -173,7 +179,7 @@ class PLP extends React.Component {
 
         cartItems.unshift(item)
         this.props.setCartItems(cartItems)
-        this.setState({ notificationMessage: item.name + ' added to cart' })
+        this.setState({ notificationType: 'success', notificationMessage: item.brand + ' '+ item.name + ' added to cart' })
         setTimeout(() => {
             this.setState({ notificationMessage: '' })
         }, 5000)
@@ -182,16 +188,13 @@ class PLP extends React.Component {
     }
 
 
-    onProductImageClick(productId) {
 
-        this.markOrUnMarkProductAsSelected(productId, this.props.focusedProductId)
-
-    }
-
-    onProductPriceClick(productId) {
-
-        this.props.setFocusedProductId(productId)
-        this.props.navigate(`/${this.props.focusedCategoryData.name}/${productId}`)
+    onProductClick(productId) {
+        if (!isQuickShopIconClicked) {
+            this.props.setFocusedProductId(productId)
+            this.props.navigate(`/${this.props.focusedCategoryData.name}/${productId}`)
+        }
+        isQuickShopIconClicked = false
     }
 
     markOrUnMarkProductAsSelected(incommingFocusedProductId, focusedProductId) {
@@ -212,6 +215,8 @@ class PLP extends React.Component {
         const showCart = this.props.showCart
         const focusedProductId = this.props.focusedProductId
 
+        const {notificationMessage, notificationType} = this.state
+
         if (loading || error !== '') {
             return (
                 <Loading
@@ -224,7 +229,7 @@ class PLP extends React.Component {
 
             return (
                 <PLPContainer dimContent={showCart}>
-                    <div className='dim-overlay' ></div>
+                    <div className='dim-overlay' onClick={() => this.props.setShowCart(false)} ></div>
                     <CategoryContainer>
                         <div className='header-container'>
                             <h2>{focusedCategoryData.name}</h2>
@@ -243,19 +248,18 @@ class PLP extends React.Component {
                                         price={product.prices[selectedCurrency].currency.symbol + " " + parseFloat(product.prices[selectedCurrency].amount).toFixed(2)}
                                         inStock={product.inStock}
                                         focusedProductId={focusedProductId}
-                                        onProductImageClick={() => this.onProductImageClick(product.id)}
-                                        onProductPriceClick={() => this.onProductPriceClick(product.id)}
+                                        onProductClick={() => this.onProductClick(product.id)}
                                         dimContent={showCart}
-                                        onCartClick={() => this.onCartIconClick(product, index)}
+                                        onCartClick={() => this.onCartIconClick(product)}
                                     />
                                 )
                             })}
                         </ItemsContainer>
                     </CategoryContainer>
                     <Notification
-                        backgroundColor={"#5ECE7B"}
-                        message={this.state.notificationMessage}
-                        show={this.state.notificationMessage !== ''}
+                        backgroundColor={notificationType==='success'?"#5ECE7B":"red"}
+                        message={notificationMessage}
+                        show={notificationMessage !== ''}
                     />
                 </PLPContainer>
             );
@@ -271,7 +275,9 @@ const mapDispatchToProps = (dispatch) => {
         setLoading: (item) => dispatch(setLoading(item)),
         setError: (item) => dispatch(setError(item)),
         setFocusedTab: (item) => dispatch(setFocusedTab(item)),
-        setCartItems: (item) => dispatch(setCartItems(item))
+        setCartItems: (item) => dispatch(setCartItems(item)),
+        setShowCart: () => dispatch(setShowCart())
+
     }
 };
 

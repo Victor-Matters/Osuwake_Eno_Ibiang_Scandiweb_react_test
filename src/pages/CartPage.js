@@ -13,6 +13,7 @@ import { ReactComponent as RightSquare } from "../assets/svg/right_square.svg";
 import ColorBox from '../components/ColorBox';
 import AttributeBox from '../components/AttributeBox';
 import ButtonType1 from '../components/ButtonType1';
+import { setShowCart } from '../redux/slices/navSlice';
 
 
 const taxPercent = 21
@@ -142,11 +143,10 @@ class CartPage extends Component {
 
     return (
       <CartPageContainer dimContent={showCart}>
-        <div className='dim-overlay' ></div>
+        <div className='dim-overlay' onClick={() => this.props.setShowCart(false)} ></div>
         <div className='header-container'>
           <h2>CART</h2>
         </div>
-
 
         {cartItems.length > 0 ? <React.Fragment>
 
@@ -180,7 +180,7 @@ class CartPage extends Component {
                                             boxWidth={"17px"}
                                             boxColor={item.value}
                                             selected={i === product.attributes[index].choiceIndex}
-                                            onClick={() => this.onAttributeClick(index, i, product_index)}
+                                            // onClick={() => this.onAttributeClick(index, i, product_index)}
                                           />
                                           :
                                           <AttributeBox key={i}
@@ -188,7 +188,7 @@ class CartPage extends Component {
                                             fontSize={"17px"}
                                             sizeText={item.value}
                                             selected={i === product.attributes[index].choiceIndex}
-                                            onClick={() => this.onAttributeClick(index, i, product_index)}
+                                           // onClick={() => this.onAttributeClick(index, i, product_index)}
                                           />
 
                                       }
@@ -267,7 +267,8 @@ class CartPage extends Component {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setCartItems: (item) => dispatch(setCartItems(item))
+    setCartItems: (item) => dispatch(setCartItems(item)),
+    setShowCart: () => dispatch(setShowCart())
   }
 };
 

@@ -10,17 +10,8 @@ export const GET_CATEGORIES = gql`
 `;
 
 
-export const GET_CATEGORY_querry_type1 = (categoryName) => gql`
-query  {
-  category(input: {title: "${categoryName}"}) {
-    name,
-    products{id, name, inStock, gallery, prices{currency{label, symbol} amount}}
-  }
-}
-`;
 
-
-export const GET_CATEGORY_querry_type2 = (categoryName) => gql`
+export const GET_CATEGORY = (categoryName) => gql`
 query  {
   category(input: {title: "${categoryName}"}) {
     name,
