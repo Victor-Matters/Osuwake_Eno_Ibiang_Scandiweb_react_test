@@ -159,7 +159,7 @@ class CartPage extends Component {
                       <p className='brand'>{product.brand}</p>
                       <p className='name'>{product.name}</p>
                       <p className='amount'>
-                        {product.prices[selectedCurrency].currency.symbol + " " + product.prices[selectedCurrency].amount}
+                        {product.prices[selectedCurrency].currency.symbol + " " + parseFloat(product.prices[selectedCurrency].amount).toFixed(2)}
                       </p>
                       {product.attributes.map((attribute, index) => {
                         return (

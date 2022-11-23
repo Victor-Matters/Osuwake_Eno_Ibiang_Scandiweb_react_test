@@ -326,10 +326,8 @@ class PDP extends Component {
       notificationMessage
     } = this.state
 
-    const cartItems = this.props.cartItems
-    const showCart = this.props.showCart
 
-    const item = { ...this.state.productData }
+    const showCart = this.props.showCart
 
 
     if (loading) {
@@ -411,7 +409,7 @@ class PDP extends Component {
                 )
               })}
               <p className="product-attribute-header">PRICE:</p>
-              <p className="price">{productData.prices[selectedCurrency].currency.symbol + " " + productData.prices[selectedCurrency].amount}</p>
+              <p className="price">{productData.prices[selectedCurrency].currency.symbol + " " + parseFloat(productData.prices[selectedCurrency].amount).toFixed(2)}</p>
               <br />
               {/* {productInCart ? <div className='product-in-cart-bottom'>
                 <button onClick={() => this.decreaseProductQuantity(indexOfProduct)}>
