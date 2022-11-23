@@ -47,7 +47,7 @@ class PLP extends React.Component {
             query: GET_CATEGORIES
         }).then((result) => {
             let all_categories = result.data.categories
-      
+
             // Here am Checking if the name of the passed route(categoryName) exist in our list of categories from backend
             // If it is not found i will present client with our 0 index category. Which for this test is "all" 
 
@@ -75,100 +75,152 @@ class PLP extends React.Component {
 
     }
 
-    onCartIconClick(product) {
-        isQuickShopIconClicked = true
-        if(product.inStock){
-        const attributes = product.attributes
-        const cartItems = [...this.props.cartItems]
-        //Making an iterable copy of product
-        const _product = { ...product }
 
+    validateAttributesSelection = (attributes) => {
 
-        if (cartItems.length > 0) {
-            // Checking if cart id has any product with same id
-            let productWithSameIdFound = false;
-            let index_of_productWithSameId = null;
-
-            for (let i = 0; i < cartItems.length; i++) {
-                if (cartItems[i].id === product.id) {
-                    productWithSameIdFound = true
-                    index_of_productWithSameId = i
-                }
-            }
-
-            if (productWithSameIdFound) {
-
-                /// Increment quantity of product in the bag instead
-                let cartItem = { ...cartItems[index_of_productWithSameId] }
-
-                cartItem.quantity = cartItem.quantity + 1
-
-
-                cartItems[index_of_productWithSameId] = cartItem
-
-
-                this.props.setCartItems(cartItems)
-
-                this.setState({ notificationType: 'success', notificationMessage: product.brand + ' ' + product.name + ' added to cart' })
+        for (let i = 0; i < attributes.length; i++) {
+            if (attributes[i].choiceIndex === undefined) {
+                this.setState({
+                    attributeValidationFocusIndex: i,
+                    attributeValidationErrorFound: true
+                })
                 setTimeout(() => {
-                    this.setState({ notificationMessage: '' })
-                }, 5000)
-
+                    this.setState({ attributeValidationErrorFound: false })
+                }, 3000);
+                return false
             }
+        }
+        return true
 
-            else {
-                //If Product has no attributes directly add product to cart
-                if (attributes.length === 0) {
-                    this.addProductToCart(_product)
-                }
-                else {
-                    //select some default attribute choices for the user before adding
-                    //product to the cart
-                    let _attributes = [..._product.attributes]
-                    for (let i = 0; i < _attributes.length; i++) {
-                        let _attribute = { ...attributes[i] }
+    }
 
-                        _attribute.choiceIndex = 0
-                        _attributes[i] = _attribute
+    compareAttributes = (attributes1, attributes2) => {
+        let matchCount = 0
+        for (let i = 0; i < attributes1.length; i++) {
+            if (attributes1[i].choiceIndex === attributes2[i].choiceIndex) {
+                matchCount += 1
+            }
+        }
+
+        if (matchCount === attributes1.length) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+
+
+
+    onCartIconClick(item) {
+        isQuickShopIconClicked = true
+        const productData = { ...item }
+        //selecting some default attribute choices for the user 
+        let _attributes = [...productData.attributes]
+        for (let i = 0; i < _attributes.length; i++) {
+            let _attribute = { ..._attributes[i] }
+
+            _attribute.choiceIndex = 0
+            _attributes[i] = _attribute
+
+        }
+        productData.attributes = _attributes
+
+        console.log(productData)
+        let cartItems = [...this.props.cartItems]
+
+        //Check if cart has any items
+        if (cartItems.length > 0) {
+
+            let item_with_same_id_and_attributes_found = false
+            let index_of_item_with_same_id_and_attributes = null
+
+            if (productData.attributes.length > 0) {
+                //Run check for item with same id and same attribute selections
+
+                //Make a validation check (Checks if user has made choices for all attributes)
+
+                //This function (validateAttributesSelection) takes attributes as a parameter and iterates through
+                //Returns true if options has been selected for all attributes else returns false
+                const are_all_Attributes_Checked = this.validateAttributesSelection(productData.attributes)
+                if (are_all_Attributes_Checked) {
+                    for (let i = 0; i < cartItems.length; i++) {
+                        if (cartItems[i].id === productData.id) {
+                            //This function (compareAttributes) takes two attributes  and iterates through them
+                            //Returns true if selected options in them are thesame else returns false
+                            const attributes_selection_thesame = this.compareAttributes(cartItems[i].attributes, productData.attributes)
+                            if (attributes_selection_thesame) {
+                                item_with_same_id_and_attributes_found = true
+                                index_of_item_with_same_id_and_attributes = i
+                            }
+                        }
+                    }
+
+                    if (item_with_same_id_and_attributes_found) {
+
+                        this.increaseProductQuantity(index_of_item_with_same_id_and_attributes)
+                        this.setState({ notificationType: 'success', notificationMessage: 'An identical ' + productData.brand + ' ' + productData.name + ' was found in your bag. Quantity is now ' + parseInt(cartItems[index_of_item_with_same_id_and_attributes].quantity + 1) })
+                        setTimeout(() => {
+                            this.setState({ notificationMessage: '' })
+                        }, 7000)
 
                     }
-                    _product.attributes = _attributes
-
-                    this.addProductToCart(_product)
+                    else {
+                        //No item with same id and attribute selections found
+                        this.addProductToCart(productData)
+                    }
                 }
-            }
-        }
 
-        else {
-            //If Product has no attributes directly add product to cart
-            if (attributes.length === 0) {
-
-                this.addProductToCart(_product)
             }
             else {
-                //select some default attribute choices for the user before adding
-                //product to the cart
-                let _attributes = [..._product.attributes]
-                for (let i = 0; i < _attributes.length; i++) {
-                    let _attribute = { ...attributes[i] }
-
-                    _attribute.choiceIndex = 0
-                    _attributes[i] = _attribute
+                let item_with_same_id_found = false
+                let index_of_item_with_same_id = null
+                //Run check for item with same id
+                for (let i = 0; i < cartItems.length; i++) {
+                    if (cartItems[i].id === productData.id) {
+                        item_with_same_id_found = true
+                        index_of_item_with_same_id = i
+                        break
+                    }
 
                 }
-                _product.attributes = _attributes
 
-                this.addProductToCart(_product)
+
+                if (item_with_same_id_found) {
+
+                    this.increaseProductQuantity(index_of_item_with_same_id)
+                    this.setState({ notificationType: 'success', notificationMessage: 'An identical ' + productData.brand + ' ' + productData.name + ' was found in your bag. Quantity is now ' + parseInt(cartItems[index_of_item_with_same_id].quantity + 1) })
+                    setTimeout(() => {
+                        this.setState({ notificationMessage: '' })
+                    }, 7000)
+
+                }
+                else {
+                    //No item with same id and attribute selections found
+                    this.addProductToCart(productData)
+                }
 
             }
+
         }
-    }
-    else{
-            this.setState({ notificationType: 'error', notificationMessage: product.brand + ' '+ product.name + ' is out of stock' })
-            setTimeout(() => {
-                this.setState({ notificationMessage: '' })
-            }, 5000)
-    }
+        else {
+            //Check if product has any attributes
+            if (productData.attributes.length > 0) {
+                //Make a validation check (Checks if user has made choices for all attributes)
+
+                //This function takes attributes as a parameter and iterates through
+                //Returns true if options has been selected for all attributes else returns false
+                const are_all_Attributes_Checked = this.validateAttributesSelection(productData.attributes)
+                if (are_all_Attributes_Checked) {
+                    this.addProductToCart(productData)
+                }
+            }
+            else {
+                //Since no attributes are found, without further ado
+                //just add item to cart
+                this.addProductToCart(productData)
+            }
+        }
     }
 
     addProductToCart(item) {
@@ -179,7 +231,7 @@ class PLP extends React.Component {
 
         cartItems.unshift(item)
         this.props.setCartItems(cartItems)
-        this.setState({ notificationType: 'success', notificationMessage: item.brand + ' '+ item.name + ' added to cart' })
+        this.setState({ notificationType: 'success', notificationMessage: item.brand + ' ' + item.name + ' added to cart' })
         setTimeout(() => {
             this.setState({ notificationMessage: '' })
         }, 5000)
@@ -206,6 +258,16 @@ class PLP extends React.Component {
         }
     }
 
+    increaseProductQuantity(index) {
+        let temp_cartItems = [...this.props.cartItems];
+        let temp_product = { ...this.props.cartItems[index] };
+
+        temp_product.quantity = temp_product.quantity + 1
+
+        temp_cartItems[index] = temp_product
+        this.props.setCartItems(temp_cartItems)
+    }
+
     render() {
 
         const selectedCurrency = this.props.selectedCurrency
@@ -215,7 +277,7 @@ class PLP extends React.Component {
         const showCart = this.props.showCart
         const focusedProductId = this.props.focusedProductId
 
-        const {notificationMessage, notificationType} = this.state
+        const { notificationMessage, notificationType } = this.state
 
         if (loading || error !== '') {
             return (
@@ -257,7 +319,7 @@ class PLP extends React.Component {
                         </ItemsContainer>
                     </CategoryContainer>
                     <Notification
-                        backgroundColor={notificationType==='success'?"#5ECE7B":"red"}
+                        backgroundColor={notificationType === 'success' ? "#5ECE7B" : "red"}
                         message={notificationMessage}
                         show={notificationMessage !== ''}
                     />

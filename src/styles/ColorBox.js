@@ -18,6 +18,7 @@ align-items: center;
 width: 85%;
 height: 85%;
 background-color:  ${props => props.boxColor};
+border: 0.5px solid black;
 }
 
 }

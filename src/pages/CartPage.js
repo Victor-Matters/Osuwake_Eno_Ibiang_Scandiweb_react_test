@@ -180,6 +180,7 @@ class CartPage extends Component {
                                             boxWidth={"17px"}
                                             boxColor={item.value}
                                             selected={i === product.attributes[index].choiceIndex}
+                                            isCursor={false}
                                             // onClick={() => this.onAttributeClick(index, i, product_index)}
                                           />
                                           :
@@ -188,7 +189,8 @@ class CartPage extends Component {
                                             fontSize={"17px"}
                                             sizeText={item.value}
                                             selected={i === product.attributes[index].choiceIndex}
-                                           // onClick={() => this.onAttributeClick(index, i, product_index)}
+                                            isCursor={false}
+                                            // onClick={() => this.onAttributeClick(index, i, product_index)}
                                           />
 
                                       }

@@ -9,8 +9,6 @@ export const GET_CATEGORIES = gql`
   }
 `;
 
-
-
 export const GET_CATEGORY = (categoryName) => gql`
 query  {
   category(input: {title: "${categoryName}"}) {

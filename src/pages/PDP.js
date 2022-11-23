@@ -77,52 +77,10 @@ class PDP extends Component {
         this.setState({ error: 'Oops ! Broken Link', showBackButton: true })
       }
       else {
-        //Maintain user's selected attributes from cart
-
-        let cartItems = [...this.props.cartItems]
-
-        let temp_productData = { ...productData }
-
-        if (cartItems.length > 0) {
-          // Checking if cart id has any product with same id
-          let productWithSameIdFound = false;
-          let index_of_productWithSameId = null;
-
-          for (let i = 0; i < cartItems.length; i++) {
-            if (cartItems[i].id === id) {
-              productWithSameIdFound = true
-              index_of_productWithSameId = i
-            }
-          }
-
-          if (productWithSameIdFound) {
-
-            temp_productData.attributes = cartItems[index_of_productWithSameId].attributes
-            this.setState({
-              loading: false,
-              productData: temp_productData
-            })
-
-            // console.log({cartItems: cartItems[index_of_productWithSameId]})
-
-
-          }
-
-          else {
-            this.setState({
-              loading: false,
-              productData: productData
-            })
-          }
-
-        }
-
-        else {
-          this.setState({
-            loading: false,
-            productData: productData
-          })
-        }
+        this.setState({
+          loading: false,
+          productData: productData
+        })
 
       }
 
@@ -134,76 +92,170 @@ class PDP extends Component {
 
 
 
-  addProductToCart(item) {
-const {productData} = this.state
-    if(productData.inStock) {
+  addProductToCart(product) {
 
-    let cartItems = [...this.props.cartItems];
+    //Manking an extensible object from param 
+    //so i can an an ititial quantity of value 1 
+    const item = { ...product }
 
+    if (item.inStock) {
 
-    item.quantity = 1
-    cartItems.unshift(item)
-    this.props.setCartItems(cartItems)
-    this.setState({ notificationType: 'success', notificationMessage: item.brand + ' ' + item.name + ' added to cart' })
-    setTimeout(() => {
-      this.setState({ notificationMessage: '' })
-    }, 5000)
+      let cartItems = [...this.props.cartItems];
 
-  }
-  else{
-      this.setState({ notificationType: 'error', notificationMessage: productData.brand + ' ' + productData.name + ' is out of stock' })
+      item.quantity = 1
+      cartItems.unshift(item)
+      this.props.setCartItems(cartItems)
+      this.setState({ notificationType: 'success', notificationMessage: item.brand + ' ' + item.name + ' added to cart' })
       setTimeout(() => {
         this.setState({ notificationMessage: '' })
       }, 5000)
+
+    }
+    else {
+      this.setState({ notificationType: 'error', notificationMessage: item.brand + ' ' + item.name + ' is out of stock' })
+      setTimeout(() => {
+        this.setState({ notificationMessage: '' })
+      }, 5000)
+    }
   }
-  }
-
-
-
 
   addToCartClick() {
     const { productData } = this.state
+    let cartItems = [...this.props.cartItems]
 
-    const attributes = productData.attributes
-    const _productData = { ...productData }
+    //Check if cart has any items
+    if (cartItems.length > 0) {
 
-    // _productData.quantity = 0
+      let item_with_same_id_and_attributes_found = false
+      let index_of_item_with_same_id_and_attributes = null
 
-    if (this.props.cartItems === undefined) {
-      this.props.setCartItems([])
-    }
+      if (productData.attributes.length > 0) {
+        //Run check for item with same id and same attribute selections
+
+        //Make a validation check (Checks if user has made choices for all attributes)
+
+        //This function (validateAttributesSelection) takes attributes as a parameter and iterates through
+        //Returns true if options has been selected for all attributes else returns false
+        const are_all_Attributes_Checked = this.validateAttributesSelection(productData.attributes)
+        if (are_all_Attributes_Checked) {
+          for (let i = 0; i < cartItems.length; i++) {
+            if (cartItems[i].id === productData.id) {
+              //This function (compareAttributes) takes two attributes  and iterates through them
+              //Returns true if selected options in them are thesame else returns false
+              const attributes_selection_thesame = this.compareAttributes(cartItems[i].attributes, productData.attributes)
+              if(attributes_selection_thesame){
+                item_with_same_id_and_attributes_found = true
+                index_of_item_with_same_id_and_attributes = i
+              }
+            }
+          }
+
+          if(item_with_same_id_and_attributes_found){
+
+            this.increaseProductQuantity(index_of_item_with_same_id_and_attributes)
+            this.setState({ notificationType: 'success', notificationMessage: 'An identical ' + productData.brand + ' ' + productData.name + ' was found in your bag. Quantity is now ' + parseInt(cartItems[index_of_item_with_same_id_and_attributes].quantity+1)})
+            setTimeout(() => {
+              this.setState({ notificationMessage: '' })
+            }, 7000)
+
+          }
+          else{
+            //No item with same id and attribute selections found
+            this.addProductToCart(productData)
+          }
+        }
+
+      }
+      else {
+        let item_with_same_id_found = false
+        let index_of_item_with_same_id = null
+        //Run check for item with same id
+        for (let i = 0; i < cartItems.length; i++) {
+          if (cartItems[i].id === productData.id) {
+            item_with_same_id_found = true
+            index_of_item_with_same_id = i  
+            break
+          }
+
+        }
 
 
-    if (attributes.length === 0) {
-      //Proceed to add product to cart without validating 
-      //attributes options selection
+        if (item_with_same_id_found) {
 
-      this.addProductToCart(_productData)
+          this.increaseProductQuantity(index_of_item_with_same_id)
+          this.setState({ notificationType: 'success', notificationMessage: 'An identical ' + productData.brand + ' ' + productData.name + ' was found in your bag. Quantity is now ' + parseInt(cartItems[index_of_item_with_same_id].quantity + 1) })
+          setTimeout(() => {
+            this.setState({ notificationMessage: '' })
+          }, 7000)
+
+        }
+        else {
+          //No item with same id and attribute selections found
+          this.addProductToCart(productData)
+        }
+
+      }
+
     }
     else {
-      //Validating if user has selected desired attributes options
-      let errorFound = false
-      for (let i = 0; i < attributes.length; i++) {
-        if (attributes[i].choiceIndex === undefined) {
-          this.setState({
-            attributeValidationFocusIndex: i,
-            attributeValidationErrorFound: true
-          })
-          setTimeout(() => {
-            this.setState({ attributeValidationErrorFound: false })
-          }, 3000);
-          return
+      //Check if product has any attributes
+      if (productData.attributes.length > 0) {
+        //Make a validation check (Checks if user has made choices for all attributes)
+
+        //This function takes attributes as a parameter and iterates through
+        //Returns true if options has been selected for all attributes else returns false
+        const are_all_Attributes_Checked = this.validateAttributesSelection(productData.attributes)
+        if (are_all_Attributes_Checked) {
+          this.addProductToCart(productData)
         }
       }
+      else {
+        //Since no attributes are found, without further ado
+        //just add item to cart
+        this.addProductToCart(productData)
+      }
+    }
+  }
 
-      if (!errorFound) {
+  
 
-        this.addProductToCart(_productData)
+  validateAttributesSelection = (attributes) => {
 
+    for (let i = 0; i < attributes.length; i++) {
+      if (attributes[i].choiceIndex === undefined) {
+        this.setState({
+          attributeValidationFocusIndex: i,
+          attributeValidationErrorFound: true
+        })
+        setTimeout(() => {
+          this.setState({ attributeValidationErrorFound: false })
+        }, 3000);
+        return false
+      }
+    }
+    return true
+
+  }
+
+  compareAttributes = (attributes1, attributes2) => {
+    let matchCount = 0
+    for (let i = 0; i < attributes1.length; i++) {
+      if (attributes1[i].choiceIndex === attributes2[i].choiceIndex) {
+        matchCount += 1
       }
     }
 
+    if (matchCount === attributes1.length) {
+      return true
+    }
+    else {
+      return false
+    }
   }
+
+
+
+
 
   decreaseProductQuantity(index) {
     let temp_cartItems = [...this.props.cartItems];
@@ -237,85 +289,28 @@ const {productData} = this.state
 
     temp_cartItems[index] = temp_product
     this.props.setCartItems(temp_cartItems)
-    this.setState({ notificationType: 'success', notificationMessage: temp_product.brand + ' ' + temp_product.name + ' added to cart' })
-    setTimeout(() => {
-      this.setState({ notificationMessage: '' })
-    }, 5000)
-
   }
 
   onAttributeClick(attributeIndex, choiceIndex) {
+    //make an extensible copy of the focused item
+    const _product = { ...this.state.productData }
 
-    const { productData } = this.state
-    let cartItems = [...this.props.cartItems]
+    //make an iterable copy of the focused item attributes
+    const _product_attributes = [..._product.attributes]
 
-    //Making objects and array references to update 
-    // attributes choice selection on PDP
+    const _product_attribute = { ..._product.attributes[attributeIndex] }
 
-    let product = { ...this.state.productData };
+    _product_attribute.choiceIndex = choiceIndex
 
-    let product_attributes = [...product.attributes];
+    _product_attributes[attributeIndex] = _product_attribute
 
-    let product_attribute = { ...product_attributes[attributeIndex] };
+    _product.attributes = _product_attributes
 
-    product_attribute.choiceIndex = choiceIndex
-
-    product_attributes[attributeIndex] = product_attribute
-
-    product.attributes = product_attributes
-
-    this.setState({ productData: product })
-
-
-    //Checking if product with same id in cart such that if found the
-    //attribute option update should apply there as well
-    if (cartItems.length > 0) {
-      // Checking if cart id has any product with same id
-      let productWithSameIdFound = false;
-      let index_of_productWithSameId = null;
-
-      for (let i = 0; i < cartItems.length; i++) {
-        if (cartItems[i].id === productData.id) {
-          productWithSameIdFound = true
-          index_of_productWithSameId = i
-        }
-      }
-
-
-
-
-      //Checking if there is a product in cart with same id 
-      // so i can update the new choices there too
-      if (productWithSameIdFound) {
-        /// Updating attributes choice selection on cart
-        let cartItem = { ...cartItems[index_of_productWithSameId] }
-
-        let cartItemAttributes = [...cartItem.attributes]
-
-        let cartItemAttribute = { ...cartItemAttributes[attributeIndex] }
-
-        cartItemAttribute.choiceIndex = choiceIndex
-
-        cartItemAttributes[attributeIndex] = cartItemAttribute
-
-        cartItem.attributes = cartItemAttributes
-
-        cartItems[index_of_productWithSameId] = cartItem
-
-        this.props.setCartItems(cartItems)
-
-      }
-
-
-
-    }
-
+    this.setState({ productData: _product })
 
   }
 
   render() {
-
-    //console.log(this.state.productData)
 
     const selectedCurrency = this.props.selectedCurrency
 
@@ -334,22 +329,7 @@ const {productData} = this.state
     const cartItems = this.props.cartItems
     const showCart = this.props.showCart
 
-
-    //Checking if product is in Cart so 
-    //that i can display Increment/decrement product quantity buttons
-    let productInCart = false
-    let indexOfProduct = null
     const item = { ...this.state.productData }
-
-
-    for (let i = 0; i < cartItems.length; i++) {
-      if (cartItems[i].id === item.id) {
-        indexOfProduct = i
-        productInCart = true
-        break;
-      }
-    }
-
 
 
     if (loading) {
@@ -418,7 +398,7 @@ const {productData} = this.state
                                     selected={i === productData.attributes[index].choiceIndex}
                                     onClick={() => this.onAttributeClick(index, i)}
                                     isCursor={true}
-                                    />
+                                  />
 
                               }
                             </React.Fragment>
@@ -446,7 +426,7 @@ const {productData} = this.state
                 :
                 <ButtonType1 onClick={() => this.addToCartClick()} buttonText="Add to cart" />
               } */}
-              <ButtonType1 onClick={() => { productInCart ? this.increaseProductQuantity(indexOfProduct) : this.addToCartClick() }} buttonText="Add to cart" />
+              <ButtonType1 onClick={() => this.addToCartClick()} buttonText="Add to cart" />
               <div className='product-description' >{parse(productData.description)}</div>
               <Notification
                 backgroundColor={notificationType === 'success' ? "#5ECE7B" : "red"}
