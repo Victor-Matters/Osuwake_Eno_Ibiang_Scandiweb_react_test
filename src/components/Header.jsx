@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { HeaderContainer } from '../styles/Header'
-import { gql } from '@apollo/client';
 import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
 import {  setCartItems } from '../redux/slices/cartSlice'
