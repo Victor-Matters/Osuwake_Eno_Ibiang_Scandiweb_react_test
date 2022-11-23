@@ -222,20 +222,31 @@ class PLP extends React.Component {
         }
     }
 
-    addProductToCart(item) {
+    addProductToCart(product) {
 
-        let cartItems = [...this.props.cartItems];
+        //Manking an extensible object from param 
+        //so i can an an ititial quantity of value 1 
+        const item = { ...product }
 
-        item.quantity = 1
+        if (item.inStock) {
 
-        cartItems.unshift(item)
-        this.props.setCartItems(cartItems)
-        this.setState({ notificationType: 'success', notificationMessage: item.brand + ' ' + item.name + ' added to cart' })
-        setTimeout(() => {
-            this.setState({ notificationMessage: '' })
-        }, 5000)
+            let cartItems = [...this.props.cartItems];
 
+            item.quantity = 1
+            cartItems.unshift(item)
+            this.props.setCartItems(cartItems)
+            this.setState({ notificationType: 'success', notificationMessage: item.brand + ' ' + item.name + ' added to cart' })
+            setTimeout(() => {
+                this.setState({ notificationMessage: '' })
+            }, 5000)
 
+        }
+        else {
+            this.setState({ notificationType: 'error', notificationMessage: item.brand + ' ' + item.name + ' is out of stock' })
+            setTimeout(() => {
+                this.setState({ notificationMessage: '' })
+            }, 5000)
+        }
     }
 
 
