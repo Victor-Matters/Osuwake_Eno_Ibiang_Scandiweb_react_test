@@ -126,7 +126,6 @@ class PLP extends React.Component {
         }
         productData.attributes = _attributes
 
-        console.log(productData)
         let cartItems = [...this.props.cartItems]
 
         //Check if cart has any items
