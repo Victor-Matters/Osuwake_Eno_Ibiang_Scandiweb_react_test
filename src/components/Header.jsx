@@ -18,34 +18,8 @@ import ColorBox from './ColorBox';
 import AttributeBox from './AttributeBox';
 import ButtonType1 from './ButtonType1';
 import ButtonType2 from './ButtonType2';
+import { GET_CATEGORIES, GET_CATEGORY, GET_CURRENCIES } from '../graphql/queries';
 
-
-
-const GET_CURRENCIES = gql`
-  query {
-     currencies{    
-      label, 
-      symbol
-      }
-  }
-`;
-
-const GET_CATEGORIES = gql`
-  query {
-     categories{    
-      name
-      }
-  }
-`;
-
-const GET_CATEGORY = (categoryName) => gql`
-query  {
-  category(input: {title: "${categoryName}"}) {
-    name,
-    products{id, name, inStock, gallery, prices{currency{label, symbol} amount}}
-  }
-}
-`;
 
 
 class Header extends Component {

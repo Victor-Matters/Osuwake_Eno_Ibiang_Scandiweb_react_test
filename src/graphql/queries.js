@@ -44,3 +44,13 @@ query  {
 }
 `;
 
+
+export const GET_CURRENCIES = gql`
+  query {
+     currencies{    
+      label, 
+      symbol
+      }
+  }
+`;
+
