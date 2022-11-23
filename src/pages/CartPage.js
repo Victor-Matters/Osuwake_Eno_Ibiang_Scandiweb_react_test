@@ -214,14 +214,18 @@ class CartPage extends Component {
                       />
                     </section>
                     <img alt={product.name} src={product.gallery[product.galleryIndex === undefined ? 0 : product.galleryIndex]} />
-                    <LeftSquare
-                      onClick={product.galleryIndex === undefined || product.galleryIndex === 0 ? null : () => this.galleryLeftClick(product_index)}
-                      className={`left-arrow ${product.galleryIndex === undefined || product.galleryIndex === 0 ? "" : "enabled"}`}
-                    />
-                    <RightSquare
-                      onClick={product.galleryIndex === product.gallery.length - 1 ? null : () => this.galleryRightClick(product_index)}
-                      className={`right-arrow ${product.galleryIndex === product.gallery.length - 1 ? "" : "enabled"}`}
-                    />
+                  
+                    {product.gallery.length > 1 && <React.Fragment>
+                      <LeftSquare
+                        onClick={product.galleryIndex === undefined || product.galleryIndex === 0 ? null : () => this.galleryLeftClick(product_index)}
+                        className={`left-arrow ${product.galleryIndex === undefined || product.galleryIndex === 0 ? "" : "enabled"}`}
+                      />
+                      <RightSquare
+                        onClick={product.galleryIndex === product.gallery.length - 1 ? null : () => this.galleryRightClick(product_index)}
+                        className={`right-arrow ${product.galleryIndex === product.gallery.length - 1 ? "" : "enabled"}`}
+                      />
+                    </React.Fragment>
+                    }
                   </section>
                 </div>
               )

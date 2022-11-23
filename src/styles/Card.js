@@ -7,15 +7,16 @@ height: 350px;
 margin-bottom: 30px;
  position: relative;
  background: #FFFFFF;
-box-shadow:  ${props => props.focusedProductId === props.productId ? "0px 4px 35px rgba(168, 172, 176, 0.19)" : "none"};
 .low-opacity{
 opacity: 0.5;
 }
 
 :hover{
-cursor:  ${props => props.inStock ? "pointer" : "default"};
+cursor: pointer;
 box-shadow:  ${props => props.inStock ? "0px 4px 35px rgba(168, 172, 176, 0.19)" : "none"};
-
+.cart-icon{
+display: block;
+}
 }
 
 
@@ -53,10 +54,7 @@ color: #8D8F9A;
   justify-content: center;
   padding-left: 19px;
 
-  :hover{
-background-color:  ${props => props.inStock ? "#FBFCFC" : "none"};
 
-}
 
   
 }
@@ -81,6 +79,7 @@ font-weight: 500;
   right: 2%;
   transform: translate(-50%, -50%);
 z-index:10;
+display: none;
 }
 
 }

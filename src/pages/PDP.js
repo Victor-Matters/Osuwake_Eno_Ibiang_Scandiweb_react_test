@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { gql } from '@apollo/client';
 import { connect } from 'react-redux';
 import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
@@ -10,35 +9,9 @@ import ColorBox from '../components/ColorBox.jsx';
 import { PDPContainer } from '../styles/PDP.js';
 import ButtonType1 from '../components/ButtonType1.jsx';
 import Notification from '../components/Notification.jsx';
+import { GET_CATEGORY_querry_type2, GET_PRODUCT } from '../graphql/queries.js';
 const parse = require('html-react-parser');
 
-
-const GET_CATEGORY = (categoryName) => gql`
-query  {
-  category(input: {title: "${categoryName}"}) {
-    name,
-    products{id, name, inStock, gallery, prices{currency{label, symbol} amount}}
-  }
-}
-`;
-
-const GET_PRODUCT = (productId) => gql`
-query  {
-  product(id: "${productId}") {
-    id,
-    name,
-    inStock,
-    gallery,
-    description,
-    category,
-    attributes{id, name, type, items{displayValue, value, id}},
-    prices{currency{label,symbol}, amount},
-    brand
-
-   
-  }
-}
-`;
 
 
 class PDP extends Component {
@@ -78,7 +51,7 @@ class PDP extends Component {
 
   getCategoryByName = async (categoryName) => {
     await client.query({
-      query: GET_CATEGORY(categoryName)
+      query: GET_CATEGORY_querry_type2(categoryName)
     }).then((result) => {
       let categoryData = result.data.category
       if (categoryData === null) {

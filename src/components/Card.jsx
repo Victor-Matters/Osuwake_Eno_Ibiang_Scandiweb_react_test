@@ -19,10 +19,10 @@ export default class Card extends Component {
             {!this.props.inStock && <div className='item-info'>OUT OF STOCK</div>}
           </div>
           <div onClick={this.props.inStock ? this.props.onProductPriceClick : undefined} className='product-price'>
-            <div className='item-name'>{this.props.name}</div>
+            <div className='item-name'>{this.props.brand} {this.props.name}</div>
             <div className='item-price'>{this.props.price}</div>
           </div>
-          {(this.props.focusedProductId === this.props.productId && !this.props.dimContent) && <img onClick={this.props.onCartClick} className='cart-icon' src={add_to_cart} alt='add-to-cart' />}
+           <img onClick={this.props.onCartClick} className='cart-icon' src={add_to_cart} alt='add-to-cart' />
 
         </div>
       </CardContainer>

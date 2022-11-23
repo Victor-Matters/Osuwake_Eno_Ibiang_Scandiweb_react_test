@@ -1,5 +1,4 @@
 import React from 'react'
-import { gql } from '@apollo/client';
 import { connect } from 'react-redux';
 import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
@@ -10,35 +9,7 @@ import { CategoryContainer, ItemsContainer, PLPContainer } from '../styles/PLP.j
 import Card from '../components/Card.jsx';
 import Loading from '../components/Loading.jsx';
 import { setCartItems } from '../redux/slices/cartSlice.js';
-
-
-const GET_CATEGORIES = gql`
-  query {
-     categories{    
-      name,
-      }
-  }
-`;
-
-
-const GET_CATEGORY = (categoryName) => gql`
-query  {
-  category(input: {title: "${categoryName}"}) {
-    name,
-    products{
-        id, 
-        name, 
-        inStock, 
-        gallery, 
-        prices{currency{label, symbol} amount},
-        attributes{id, name, type, items{displayValue, value, id}}
-    },
-  }
-}
-`;
-
-
-
+import { GET_CATEGORIES, GET_CATEGORY_querry_type1 } from '../graphql/queries.js';
 
 
 
@@ -56,7 +27,7 @@ class PLP extends React.Component {
         this.props.setLoading(true)
         this.props.setError('')
         await client.query({
-            query: GET_CATEGORY(categoryName)
+            query: GET_CATEGORY_querry_type1(categoryName)
         }).then((result) => {
             let categoryData = result.data.category
             this.props.setFocusedCategoryData(categoryData)
@@ -266,9 +237,10 @@ class PLP extends React.Component {
                                         image={product.gallery[0]}
                                         productId={product.id}
                                         imageName={product.name}
+                                        brand={product.brand}
                                         name={product.name}
                                         amount={product.name}
-                                        price={product.prices[selectedCurrency].currency.symbol + " " + product.prices[selectedCurrency].amount}
+                                        price={product.prices[selectedCurrency].currency.symbol + " " + parseFloat(product.prices[selectedCurrency].amount).toFixed(2)}
                                         inStock={product.inStock}
                                         focusedProductId={focusedProductId}
                                         onProductImageClick={() => this.onProductImageClick(product.id)}
@@ -294,15 +266,12 @@ class PLP extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-
         setFocusedCategoryData: (item) => dispatch(setFocusedCategoryData(item)),
         setFocusedProductId: (item) => dispatch(setFocusedProductId(item)),
         setLoading: (item) => dispatch(setLoading(item)),
         setError: (item) => dispatch(setError(item)),
         setFocusedTab: (item) => dispatch(setFocusedTab(item)),
         setCartItems: (item) => dispatch(setCartItems(item))
-
-
     }
 };
 

@@ -200,6 +200,8 @@ height: 15%;
 
 .order-section{
 
+    margin-bottom: 70px;
+
    .tax{
 font-weight: 400;
 font-size: 18px;

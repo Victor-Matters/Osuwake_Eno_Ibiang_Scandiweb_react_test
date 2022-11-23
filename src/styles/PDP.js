@@ -8,7 +8,6 @@ height: 90vh;
 flex-direction: row;
 justify-content: space-between;
 
-
 .dim-overlay{
   height: 100vh;
   background: gray;
@@ -17,6 +16,7 @@ justify-content: space-between;
   opacity: 60% ;
   display:   ${props => props.dimContent ? 'block' : 'none'}; 
 }
+
  .column1{
     padding-top: 40vh;
     width: 15%;
