@@ -278,8 +278,6 @@ const mapStateToProps = state => ({
   cartItems: state.cartSlice.cartItems,
   selectedCurrency: state.navSlice.selectedCurrency,
   showCart: state.navSlice.showCart
-
-
 })
 
 export const withRouter = (Component) => (props) => {

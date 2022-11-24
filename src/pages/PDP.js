@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { useNavigate, useParams } from "react-router-dom";
 import { client } from '../index.js'
-import { setProductAttributes, setCartItems } from '../redux/slices/cartSlice'
+import {  setCartItems } from '../redux/slices/cartSlice'
 import Loading from '../components/Loading.jsx';
 import AttributeBox from '../components/AttributeBox.jsx';
 import ColorBox from '../components/ColorBox.jsx';
@@ -33,11 +33,16 @@ class PDP extends Component {
 
   componentDidMount() {
 
+    
+
     this.getProductData()
     window.scrollTo(0, 0)
     // this.props.setCartItems([])
     //   this.props.setProductAttributes([])
 
+  }
+
+  componentWillUnmount(){
   }
 
 
@@ -69,7 +74,7 @@ class PDP extends Component {
 
   getProductById = async (id) => {
     await client.query({
-      query: GET_PRODUCT(id)
+      query:  GET_PRODUCT(id)
     }).then((result) => {
       let productData = result.data.product
 
@@ -81,7 +86,8 @@ class PDP extends Component {
           loading: false,
           productData: productData
         })
-
+        
+        client.resetStore()
       }
 
     }).catch(err => {
@@ -442,7 +448,7 @@ class PDP extends Component {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setProductAttributes: (item) => dispatch(setProductAttributes(item)),
+ 
     setCartItems: (item) => dispatch(setCartItems(item)),
     setShowCart: () => dispatch(setShowCart())
   }

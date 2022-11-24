@@ -12,7 +12,6 @@ import { ReactComponent as ArrowUp } from "../assets/svg/arrow_up.svg";
 import { ReactComponent as ArrowDown } from "../assets/svg/arrow_down.svg";
 import { ReactComponent as PlusSquare } from "../assets/svg/plus_square.svg";
 import { ReactComponent as MinusSquare } from "../assets/svg/minus_square.svg";
-
 import ColorBox from './ColorBox';
 import AttributeBox from './AttributeBox';
 import ButtonType1 from './ButtonType1';

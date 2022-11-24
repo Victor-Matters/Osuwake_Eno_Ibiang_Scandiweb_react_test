@@ -113,6 +113,7 @@ class PLP extends React.Component {
 
 
     onCartIconClick(item) {
+        
         isQuickShopIconClicked = true
         const productData = { ...item }
         //selecting some default attribute choices for the user 
@@ -224,8 +225,8 @@ class PLP extends React.Component {
 
     addProductToCart(product) {
 
-        //Manking an extensible object from param 
-        //so i can an an ititial quantity of value 1 
+        //Making an extensible object from param 
+        //so i can add an ititial quantity of value 1 
         const item = { ...product }
 
         if (item.inStock) {
