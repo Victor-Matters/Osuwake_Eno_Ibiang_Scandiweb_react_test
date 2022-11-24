@@ -266,6 +266,7 @@ class Header extends Component {
                                                                                                         key={i}
                                                                                                         boxHeight={"17px"}
                                                                                                         boxWidth={"17px"}
+                                                                                                        boxSize={"77%"}
                                                                                                         boxColor={item.value}
                                                                                                         selected={i === product.attributes[index].choiceIndex}
                                                                                                         isCursor={false}

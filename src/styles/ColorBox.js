@@ -15,8 +15,8 @@ justify-content: center;
 align-items: center;
 
 .color{
-width: 85%;
-height: 85%;
+width: ${props => props.boxSize};
+height: ${props => props.boxSize};
 background-color:  ${props => props.boxColor};
 border: 0.5px solid black;
 }

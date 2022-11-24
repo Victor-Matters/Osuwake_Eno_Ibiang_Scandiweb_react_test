@@ -10,6 +10,7 @@ export default class ColorBox extends Component {
                 isCursor={this.props.isCursor}
                 boxHeight={this.props.boxHeight}
                 boxWidth={this.props.boxWidth}
+                boxSize={this.props.boxSize}
                 boxColor={this.props.boxColor}
                 selected={this.props.selected}
                 onClick={this.props.onClick}
@@ -21,5 +22,6 @@ export default class ColorBox extends Component {
 }
 
 ColorBox.defaultProps = {
-    isCursor: true
+    isCursor: true,
+    boxSize: "82%"
 }

@@ -8,8 +8,6 @@ import { ReactComponent as PlusSquare } from "../assets/svg/plus_square.svg";
 import { ReactComponent as MinusSquare } from "../assets/svg/minus_square.svg";
 import { ReactComponent as LeftSquare } from "../assets/svg/left_square.svg";
 import { ReactComponent as RightSquare } from "../assets/svg/right_square.svg";
-
-
 import ColorBox from '../components/ColorBox';
 import AttributeBox from '../components/AttributeBox';
 import ButtonType1 from '../components/ButtonType1';
@@ -178,6 +176,7 @@ class CartPage extends Component {
                                             key={i}
                                             boxHeight={"17px"}
                                             boxWidth={"17px"}
+                                            boxSize={"75%"}
                                             boxColor={item.value}
                                             selected={i === product.attributes[index].choiceIndex}
                                             isCursor={false}
