@@ -42,9 +42,6 @@ class PDP extends Component {
 
   }
 
-  componentWillUnmount(){
-  }
-
 
   getProductData() {
     const { categoryName } = this.props.params
