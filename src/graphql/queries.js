@@ -45,14 +45,6 @@ query  {
 `;
 
 
-export const GET_PRODUCT_ATTRIBUTES = (productId) => gql`
-query  {
-  product(id: "${productId}") {
-    attributes{id, name, type, items{displayValue, value, id}},
-  }
-}
-`;
-
 export const GET_CURRENCIES = gql`
   query {
      currencies{    
