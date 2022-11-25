@@ -38,15 +38,12 @@ class PDP extends Component {
     this.getProductData()
     window.scrollTo(0, 0)
     // this.props.setCartItems([])
-    //   this.props.setProductAttributes([])
-
+    // this.props.setProductAttributes([])
   }
 
 
   getProductData() {
     const { categoryName } = this.props.params
-
-
     this.getCategoryByName(categoryName)
   }
 

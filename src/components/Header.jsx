@@ -118,21 +118,13 @@ class Header extends Component {
         if (temp_product.quantity === 1) {
             temp_cartItems.splice(index, 1);
             this.props.setCartItems(temp_cartItems)
-            this.setState({ notificationMessage: temp_product.name + ' removed from cart' })
-
+           
         }
         else {
             temp_product.quantity = temp_product.quantity - 1
             temp_cartItems[index] = temp_product
             this.props.setCartItems(temp_cartItems)
-            this.setState({ notificationMessage: temp_product.name + ' removed from cart' })
-
         }
-
-        setTimeout(() => {
-            this.setState({ notificationMessage: '' })
-        }, 5000)
-
     }
 
     increaseProductQuantity(index) {
@@ -143,11 +135,6 @@ class Header extends Component {
 
         temp_cartItems[index] = temp_product
         this.props.setCartItems(temp_cartItems)
-        this.setState({ notificationMessage: temp_product.name + ' added to cart' })
-        setTimeout(() => {
-            this.setState({ notificationMessage: '' })
-        }, 5000)
-
     }
 
 
